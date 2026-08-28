@@ -14,9 +14,17 @@ enum AppLanguage: String, CaseIterable, Identifiable {
         }
     }
 
+    /// Détecte automatiquement la langue de l'appareil (Réglages > Langue & Région de l'iPhone).
+    /// Parcourt la liste de préférences de l'appareil ("fr-FR", "en-US", "de-DE"…) et renvoie la
+    /// première langue prise en charge par l'app. Sinon, repli sur l'anglais (fallback universel).
     static var system: AppLanguage {
-        let pref = Locale.preferredLanguages.first?.lowercased() ?? "en"
-        return pref.hasPrefix("fr") ? .fr : .en
+        for preferred in Locale.preferredLanguages {
+            let code = Locale(identifier: preferred).languageCode?.lowercased() ?? ""
+            if let match = AppLanguage(rawValue: code) {
+                return match
+            }
+        }
+        return .en
     }
 
     static var current: AppLanguage {
