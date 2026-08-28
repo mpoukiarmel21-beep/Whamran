@@ -42,6 +42,13 @@ public enum DeviceProfiler {
         model(for: currentIdentifier())
     }
 
+    private static func model(for identifier: String) -> DeviceModel? {
+        let id = identifier.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let exact = all.first(where: { $0.identifier == id }) { return exact }
+        let family = id.components(separatedBy: ",").first ?? id
+        return all.first(where: { $0.identifier.hasPrefix(family + ",") })
+    }
+
     /// Modèles compatibles = même puce que l'appareil courant.
     public static func compatibleModels(for identifier: String) -> [DeviceModel] {
         guard let current = model(for: identifier) else { return [] }

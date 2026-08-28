@@ -29,6 +29,7 @@ jobs:
 
       - name: Build (unsigned)
         run: |
+          set -o pipefail
           xcodebuild build \
             -scheme Whamran \
             -configuration Release \
@@ -45,6 +46,8 @@ jobs:
           APP=$(find build/Build/Products -name "Whamran.app" -maxdepth 2 | head -n 1)
           echo "APP=$APP"
           test -n "$APP" || { echo "App non trouvé"; tail -n 40 build.log; exit 1; }
+          test -f "$APP/Whamran" || { echo "Binaire Whamran absent dans l'app"; tail -n 40 build.log; exit 1; }
+          echo "Binaire présent: $(ls -lh "$APP/Whamran" | awk '{print $5}')"
 
       - name: Ad-hoc codesign
         run: |

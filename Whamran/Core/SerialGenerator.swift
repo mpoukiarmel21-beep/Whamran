@@ -7,7 +7,6 @@ public enum SerialGenerator {
     /// Numéro de série type Apple (12 caractères, sans ambiguïté).
     public static func serial() -> String {
         let letters = "ABCDEFGHJKLMNPQRSTUVWXYZ"
-        let digits = "0123456789"
         var s = ""
         // 3 lettres (usine)
         for _ in 0..<3 { s.append(letters.randomElement()!) }
