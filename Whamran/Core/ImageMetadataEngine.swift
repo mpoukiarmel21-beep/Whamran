@@ -91,7 +91,6 @@ public final class ImageMetadataEngine {
             exif[kCGImagePropertyExifFNumber] = camera.fNumber
             exif[kCGImagePropertyExifExposureProgram] = camera.exposureProgram
             exif[kCGImagePropertyExifISOSpeedRatings] = [Int(camera.isoSpeedRating)]
-            exif[kCGImagePropertyExifExifVersion] = "2.31"
             exif[kCGImagePropertyExifComponentsConfiguration] = Data([1, 2, 3, 0])
             exif[kCGImagePropertyExifBrightnessValue] = camera.brightness
             exif[kCGImagePropertyExifExposureBiasValue] = 0.0

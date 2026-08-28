@@ -12,7 +12,7 @@ public enum IOSVersionTimeline {
         public let date: Date
         public init(_ version: String, _ year: Int, _ month: Int, _ day: Int) {
             self.version = version
-            self.date = Self.makeDate(year, month, day)
+            self.date = IOSVersionTimeline.makeDate(year, month, day)
         }
     }
 

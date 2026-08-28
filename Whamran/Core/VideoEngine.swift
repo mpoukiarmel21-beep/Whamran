@@ -97,9 +97,6 @@ public final class VideoEngine {
         // Logiciel / iOS
         items.append(makeItem(identifier: .quickTimeMetadataSoftware, keySpace: .quickTimeMetadata,
                               key: "com.apple.quicktime.software", value: "iOS \(camera.ios)" as NSString))
-        // Encodeur
-        items.append(makeItem(identifier: .quickTimeMetadataEncoder, keySpace: .quickTimeMetadata,
-                              key: "com.apple.quicktime.encoder", value: "\(camera.model) back triple camera 4.0" as NSString))
         // Localisation ISO6709
         let iso = String(format: "%+09.4f%+010.4f/", coord.lat, coord.lon)
         items.append(makeItem(identifier: .quickTimeMetadataLocationISO6709, keySpace: .quickTimeMetadata,
