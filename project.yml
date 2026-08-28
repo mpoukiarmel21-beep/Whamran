@@ -1,0 +1,34 @@
+name: Whamran
+options:
+  bundleIdPrefix: com.whamran
+  deploymentTarget:
+    iOS: "16.0"
+packages: {}
+settings:
+  base:
+    PRODUCT_BUNDLE_IDENTIFIER: com.whamran.app
+    INFOPLIST_FILE: Whamran/Info.plist
+    GENERATE_INFOPLIST_FILE: "NO"
+    CURRENT_PROJECT_VERSION: "1"
+    MARKETING_VERSION: "1.0"
+    SWIFT_VERSION: "5.9"
+    TARGETED_DEVICE_FAMILY: "1,2"
+    ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+    ENABLE_BITCODE: "NO"
+    CODE_SIGN_STYLE: Manual
+    DEVELOPMENT_TEAM: ""
+targets:
+  Whamran:
+    type: application
+    platform: iOS
+    sources:
+      - path: Whamran
+schemes:
+  Whamran:
+    build:
+      targets:
+        Whamran: all
+    run:
+      targets:
+        Whamran: all

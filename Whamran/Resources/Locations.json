@@ -1,0 +1,171 @@
+{
+  "countries": [
+    {
+      "code": "FR",
+      "name": "France",
+      "streetSuffix": "Rue",
+      "streets": [
+        "Rue de la République", "Avenue Jean Jaurès", "Boulevard Saint-Germain",
+        "Rue Victor Hugo", "Place de la Madeleine", "Rue des Lilas",
+        "Avenue des Champs-Élysées", "Rue Pasteur", "Rue Gambetta", "Allée des Tilleuls"
+      ],
+      "cities": [
+        { "name": "Paris",      "lat": 48.8566, "lon": 2.3522,   "postal": "750" },
+        { "name": "Lyon",       "lat": 45.7640, "lon": 4.8357,   "postal": "690" },
+        { "name": "Marseille",  "lat": 43.2965, "lon": 5.3698,   "postal": "130" },
+        { "name": "Bordeaux",   "lat": 44.8378, "lon": -0.5792,  "postal": "330" },
+        { "name": "Nice",       "lat": 43.7102, "lon": 7.2620,   "postal": "060" },
+        { "name": "Toulouse",   "lat": 43.6047, "lon": 1.4442,   "postal": "310" },
+        { "name": "Nantes",     "lat": 47.2184, "lon": -1.5536,  "postal": "440" },
+        { "name": "Strasbourg", "lat": 48.5734, "lon": 7.7521,   "postal": "670" }
+      ]
+    },
+    {
+      "code": "US",
+      "name": "United States",
+      "streetSuffix": "Street",
+      "streets": [
+        "Maple Street", "Sunset Boulevard", "Washington Avenue", "Park Road",
+        "Lincoln Street", "Ocean Drive", "Elm Street", "Highland Avenue",
+        "Lakeview Court", "Spring Street"
+      ],
+      "cities": [
+        { "name": "New York",   "lat": 40.7128, "lon": -74.0060, "postal": "100" },
+        { "name": "Los Angeles", "lat": 34.0522, "lon": -118.2437,"postal": "900" },
+        { "name": "Chicago",    "lat": 41.8781, "lon": -87.6298, "postal": "606" },
+        { "name": "Miami",      "lat": 25.7617, "lon": -80.1918, "postal": "331" },
+        { "name": "San Francisco","lat": 37.7749,"lon": -122.4194,"postal": "941" },
+        { "name": "Seattle",    "lat": 47.6062, "lon": -122.3321,"postal": "981" },
+        { "name": "Boston",     "lat": 42.3601, "lon": -71.0589, "postal": "021" },
+        { "name": "Austin",     "lat": 30.2672, "lon": -97.7431, "postal": "787" }
+      ]
+    },
+    {
+      "code": "ES",
+      "name": "España",
+      "streetSuffix": "Calle",
+      "streets": [
+        "Calle Mayor", "Avenida del Sol", "Calle de la Luna", "Paseo del Prado",
+        "Calle Gran Vía", "Calle de Alcalá", "Rambla Catalunya", "Calle Colón"
+      ],
+      "cities": [
+        { "name": "Madrid",    "lat": 40.4168, "lon": -3.7038,  "postal": "280" },
+        { "name": "Barcelona", "lat": 41.3851, "lon": 2.1734,   "postal": "080" },
+        { "name": "Valencia",  "lat": 39.4699, "lon": -0.3763,  "postal": "460" },
+        { "name": "Sevilla",   "lat": 37.3891, "lon": -5.9845,  "postal": "410" },
+        { "name": "Bilbao",    "lat": 43.2630, "lon": -2.9350,  "postal": "480" }
+      ]
+    },
+    {
+      "code": "DE",
+      "name": "Deutschland",
+      "streetSuffix": "Straße",
+      "streets": [
+        "Hauptstraße", "Lindenstraße", "Schlossallee", "Bahnhofstraße",
+        "Kirchplatz", "Sonnenweg", "Goethestraße", "Mühlenweg"
+      ],
+      "cities": [
+        { "name": "Berlin",   "lat": 52.5200, "lon": 13.4050, "postal": "101" },
+        { "name": "München",  "lat": 48.1351, "lon": 11.5820, "postal": "803" },
+        { "name": "Hamburg",  "lat": 53.5511, "lon": 9.9937,  "postal": "200" },
+        { "name": "Köln",     "lat": 50.9375, "lon": 6.9603,  "postal": "506" },
+        { "name": "Frankfurt","lat": 50.1109, "lon": 8.6821,  "postal": "603" }
+      ]
+    },
+    {
+      "code": "IT",
+      "name": "Italia",
+      "streetSuffix": "Via",
+      "streets": [
+        "Via Roma", "Corso Italia", "Via Giuseppe Verdi", "Viale dei Pini",
+        "Via Dante", "Via Garibaldi", "Piazza del Popolo", "Via del Corso"
+      ],
+      "cities": [
+        { "name": "Roma",       "lat": 41.9028, "lon": 12.4964, "postal": "001" },
+        { "name": "Milano",     "lat": 45.4642, "lon": 9.1900,  "postal": "201" },
+        { "name": "Napoli",     "lat": 40.8518, "lon": 14.2681, "postal": "801" },
+        { "name": "Firenze",    "lat": 43.7696, "lon": 11.2558, "postal": "501" },
+        { "name": "Torino",     "lat": 45.0703, "lon": 7.6869,  "postal": "101" }
+      ]
+    },
+    {
+      "code": "GB",
+      "name": "United Kingdom",
+      "streetSuffix": "Road",
+      "streets": [
+        "High Street", "Church Road", "Victoria Road", "Station Road",
+        "Green Lane", "Queen Street", "King's Avenue", "Castle Street"
+      ],
+      "cities": [
+        { "name": "London",    "lat": 51.5074, "lon": -0.1278,  "postal": "EC1" },
+        { "name": "Manchester","lat": 53.4808, "lon": -2.2426,  "postal": "M1 " },
+        { "name": "Birmingham","lat": 52.4862, "lon": -1.8904,  "postal": "B1 " },
+        { "name": "Liverpool", "lat": 53.4084, "lon": -2.9916,  "postal": "L1 " },
+        { "name": "Edinburgh", "lat": 55.9533, "lon": -3.1883,  "postal": "EH1" }
+      ]
+    },
+    {
+      "code": "CA",
+      "name": "Canada",
+      "streetSuffix": "Street",
+      "streets": [
+        "Queen Street", "Maple Avenue", "Lakeshore Boulevard", "King Street",
+        "Beaver Road", "Northern Lights Way", "Elm Avenue", "Harbour Street"
+      ],
+      "cities": [
+        { "name": "Toronto",   "lat": 43.6532, "lon": -79.3832, "postal": "M5H" },
+        { "name": "Montréal",  "lat": 45.5017, "lon": -73.5673, "postal": "H2X" },
+        { "name": "Vancouver", "lat": 49.2827, "lon": -123.1207,"postal": "V6C" },
+        { "name": "Calgary",   "lat": 51.0447, "lon": -114.0719,"postal": "T2P" },
+        { "name": "Ottawa",    "lat": 45.4215, "lon": -75.6972, "postal": "K1P" }
+      ]
+    },
+    {
+      "code": "JP",
+      "name": "日本",
+      "streetSuffix": "通り",
+      "streets": [
+        "桜通り", "中央通り", "昭和通り", "本町通り", "銀座通り", "青葉通り"
+      ],
+      "cities": [
+        { "name": "Tokyo",    "lat": 35.6762, "lon": 139.6503, "postal": "100" },
+        { "name": "Osaka",    "lat": 34.6937, "lon": 135.5023, "postal": "530" },
+        { "name": "Kyoto",    "lat": 35.0116, "lon": 135.7681, "postal": "600" },
+        { "name": "Nagoya",   "lat": 35.1815, "lon": 136.9066, "postal": "450" },
+        { "name": "Fukuoka",  "lat": 33.5904, "lon": 130.4017, "postal": "810" }
+      ]
+    },
+    {
+      "code": "BR",
+      "name": "Brasil",
+      "streetSuffix": "Rua",
+      "streets": [
+        "Rua das Flores", "Avenida Brasil", "Rua Sete de Setembro", "Travessa do Sol",
+        "Rua Primeiro de Maio", "Alameda dos Anjos", "Rua Tiradentes", "Praça da Sé"
+      ],
+      "cities": [
+        { "name": "São Paulo",  "lat": -23.5505, "lon": -46.6333, "postal": "010" },
+        { "name": "Rio de Janeiro","lat": -22.9068,"lon": -43.1729, "postal": "200" },
+        { "name": "Brasília",  "lat": -15.7939, "lon": -47.8828, "postal": "700" },
+        { "name": "Salvador",  "lat": -12.9777, "lon": -38.5016, "postal": "400" },
+        { "name": "Recife",    "lat": -8.0476,  "lon": -34.8770, "postal": "500" }
+      ]
+    },
+    {
+      "code": "AU",
+      "name": "Australia",
+      "streetSuffix": "Street",
+      "streets": [
+        "George Street", "Macquarie Street", "Cooper Road", "Beach Road",
+        "Kangaroo Avenue", "Riverview Terrace", "Sunshine Crescent", "Harbour Esplanade"
+      ],
+      "cities": [
+        { "name": "Sydney",     "lat": -33.8688, "lon": 151.2093, "postal": "2000" },
+        { "name": "Melbourne",  "lat": -37.8136, "lon": 144.9631, "postal": "3000" },
+        { "name": "Brisbane",   "lat": -27.4698, "lon": 153.0251, "postal": "4000" },
+        { "name": "Perth",      "lat": -31.9523, "lon": 115.8613, "postal": "6000" },
+        { "name": "Adelaide",   "lat": -34.9285, "lon": 138.6007, "postal": "5000" }
+      ]
+    }
+  ]
+}

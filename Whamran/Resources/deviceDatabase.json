@@ -1,0 +1,39 @@
+{
+  "devices": [
+    { "identifier": "iPhone12,1", "name": "iPhone 11",            "chip": "A13 Bionic",  "minIOS": 20, "maxIOS": 25 },
+    { "identifier": "iPhone12,3", "name": "iPhone 11 Pro",        "chip": "A13 Bionic",  "minIOS": 20, "maxIOS": 25 },
+    { "identifier": "iPhone12,5", "name": "iPhone 11 Pro Max",    "chip": "A13 Bionic",  "minIOS": 20, "maxIOS": 25 },
+    { "identifier": "iPhone12,8", "name": "iPhone SE (2nd gen)",   "chip": "A13 Bionic",  "minIOS": 20, "maxIOS": 25 },
+
+    { "identifier": "iPhone13,1", "name": "iPhone 12 mini",        "chip": "A14 Bionic",  "minIOS": 21, "maxIOS": 26 },
+    { "identifier": "iPhone13,2", "name": "iPhone 12",             "chip": "A14 Bionic",  "minIOS": 21, "maxIOS": 26 },
+    { "identifier": "iPhone13,3", "name": "iPhone 12 Pro",         "chip": "A14 Bionic",  "minIOS": 21, "maxIOS": 26 },
+    { "identifier": "iPhone13,4", "name": "iPhone 12 Pro Max",     "chip": "A14 Bionic",  "minIOS": 21, "maxIOS": 26 },
+
+    { "identifier": "iPhone14,4", "name": "iPhone 13 mini",        "chip": "A15 Bionic",  "minIOS": 22, "maxIOS": 27 },
+    { "identifier": "iPhone14,5", "name": "iPhone 13",             "chip": "A15 Bionic",  "minIOS": 22, "maxIOS": 27 },
+    { "identifier": "iPhone14,2", "name": "iPhone 13 Pro",         "chip": "A15 Bionic",  "minIOS": 22, "maxIOS": 27 },
+    { "identifier": "iPhone14,3", "name": "iPhone 13 Pro Max",     "chip": "A15 Bionic",  "minIOS": 22, "maxIOS": 27 },
+    { "identifier": "iPhone14,6", "name": "iPhone SE (3rd gen)",   "chip": "A15 Bionic",  "minIOS": 22, "maxIOS": 27 },
+    { "identifier": "iPhone14,7", "name": "iPhone 14",              "chip": "A15 Bionic",  "minIOS": 22, "maxIOS": 27 },
+    { "identifier": "iPhone14,8", "name": "iPhone 14 Plus",        "chip": "A15 Bionic",  "minIOS": 22, "maxIOS": 27 },
+
+    { "identifier": "iPhone15,2", "name": "iPhone 14 Pro",         "chip": "A16 Bionic",  "minIOS": 23, "maxIOS": 27 },
+    { "identifier": "iPhone15,3", "name": "iPhone 14 Pro Max",     "chip": "A16 Bionic",  "minIOS": 23, "maxIOS": 27 },
+    { "identifier": "iPhone15,4", "name": "iPhone 15",              "chip": "A16 Bionic",  "minIOS": 23, "maxIOS": 27 },
+    { "identifier": "iPhone15,5", "name": "iPhone 15 Plus",        "chip": "A16 Bionic",  "minIOS": 23, "maxIOS": 27 },
+
+    { "identifier": "iPhone16,1", "name": "iPhone 15 Pro",         "chip": "A17 Pro",     "minIOS": 24, "maxIOS": 27 },
+    { "identifier": "iPhone16,2", "name": "iPhone 15 Pro Max",     "chip": "A17 Pro",     "minIOS": 24, "maxIOS": 27 },
+
+    { "identifier": "iPhone17,3", "name": "iPhone 16",              "chip": "A18",         "minIOS": 25, "maxIOS": 27 },
+    { "identifier": "iPhone17,4", "name": "iPhone 16 Plus",         "chip": "A18",         "minIOS": 25, "maxIOS": 27 },
+    { "identifier": "iPhone17,1", "name": "iPhone 16 Pro",          "chip": "A18 Pro",     "minIOS": 25, "maxIOS": 27 },
+    { "identifier": "iPhone17,2", "name": "iPhone 16 Pro Max",      "chip": "A18 Pro",     "minIOS": 25, "maxIOS": 27 },
+
+    { "identifier": "iPhone18,1", "name": "iPhone 17",              "chip": "A19",         "minIOS": 26, "maxIOS": 27 },
+    { "identifier": "iPhone18,2", "name": "iPhone 17 Air",          "chip": "A19",         "minIOS": 26, "maxIOS": 27 },
+    { "identifier": "iPhone18,3", "name": "iPhone 17 Pro",          "chip": "A19 Pro",     "minIOS": 26, "maxIOS": 27 },
+    { "identifier": "iPhone18,4", "name": "iPhone 17 Pro Max",      "chip": "A19 Pro",     "minIOS": 26, "maxIOS": 27 }
+  ]
+}
