@@ -17,7 +17,7 @@ enum MediaInput {
     }
 }
 
-enum Screen { case pick, options, processing, result }
+enum Screen { case pick, options, processing, result, videoStudio }
 
 struct ContentView: View {
     @State private var input: MediaInput?
@@ -43,6 +43,7 @@ struct ContentView: View {
     // Results
     @State private var images: [GeneratedImage] = []
     @State private var videos: [GeneratedVideo] = []
+    @State private var studioDir: URL?
 
     private let compatible = DeviceProfiler.compatibleModels(for: DeviceProfiler.currentIdentifier())
 
@@ -59,6 +60,7 @@ struct ContentView: View {
                 case .options: optionsView
                 case .processing: processingView
                 case .result: resultView
+                case .videoStudio: videoStudioView
                 }
             }
             .id(langRaw) // re-rendre tout l'arbre quand la langue change
@@ -157,7 +159,11 @@ struct ContentView: View {
                 showPickerVideo = false
                 if case .video(let url) = media {
                     input = .video(url)
-                    screen = .options
+                    let dir = FileManager.default.temporaryDirectory
+                        .appendingPathComponent("whamran_\(UUID().uuidString)")
+                    try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+                    studioDir = dir
+                    screen = .videoStudio
                 }
             }
         }
@@ -326,6 +332,31 @@ struct ContentView: View {
         }
         .disabled(disabled)
         .buttonStyle(.plain)
+    }
+
+    // MARK: - Studio vidéo
+    private var videoStudioView: some View {
+        Group {
+            if case .video(let url) = input, let dir = studioDir {
+                VideoStudioView(sourceURL: url,
+                                compatible: compatible,
+                                defaultModel: selectedModel,
+                                outputDir: dir,
+                                onFinish: { gens in
+                                    Task { await MainActor.run {
+                                        images = gens
+                                        videos = []
+                                        screen = .result
+                                    } }
+                                },
+                                onCancel: {
+                                    Task { await MainActor.run { newSession() } }
+                                })
+            } else {
+                Color.clear.onAppear { newSession() }
+            }
+        }
+        .ignoresSafeArea()
     }
 
     // MARK: - Processing
@@ -500,7 +531,8 @@ struct ContentView: View {
     }
 
     private var resultURLs: [URL] {
-        input?.isVideo == true ? videos.map { $0.url } : images.map { $0.url }
+        if !images.isEmpty { return images.map { $0.url } }
+        return videos.map { $0.url }
     }
 
     private func clearLocation() {
@@ -515,6 +547,7 @@ struct ContentView: View {
         progress = 0
         searchText = ""
         selectedCity = nil
+        studioDir = nil
         screen = .pick
     }
 

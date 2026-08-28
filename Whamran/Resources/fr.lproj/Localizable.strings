@@ -36,3 +36,8 @@
 "result_empty" = "Aucun fichier généré";
 "error" = "Oups";
 "lang_title" = "Langue de l'app";
+"vst_settings" = "Studio vidéo";
+"vst_auto_title" = "Extraction automatique de photos";
+"vst_auto_count" = "Photos par vidéo";
+"vst_auto_hint" = "L'app extrait N photos distinctes réparties sur toute la vidéo. Chacune est une vraie capture de caméra.";
+"vst_auto_extract" = "Extraire %d photos";

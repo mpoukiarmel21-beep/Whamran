@@ -36,3 +36,8 @@
 "result_empty" = "No file generated";
 "error" = "Oops";
 "lang_title" = "App language";
+"vst_settings" = "Video studio";
+"vst_auto_title" = "Auto photo extraction";
+"vst_auto_count" = "Photos per video";
+"vst_auto_hint" = "The app extracts N distinct photos spread across the whole video. Each is a real camera capture.";
+"vst_auto_extract" = "Extract %d photos";

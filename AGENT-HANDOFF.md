@@ -20,13 +20,17 @@
 
 ## En cours
 
-- **(libre)** — Rework multi-selection/boutons/adresses livré, sélecteur de langue in-app (FR/EN)
-  livré, **détection automatique de la langue de l'appareil** renforcée (voir Journal en haut).
-  Build `33220031532` vert, IPA publié. À valider par l'utilisateur.
+- **(libre)** — **Rework du mode vidéo livré (en cours de build)** : `VideoStudioView` (voir
+  Journal en haut) — lecteur vidéo plein écran, bouton rond caméra (capture "live photo"),
+  bouton paramètres flottant, mode **extraction auto de N photos**, mêmes simulations
+  ville/modèle/iOS. À valider sur le prochain run CI puis à uploader dans la Release.
 
 ## Prochaine étape
 
-- Si l'utilisateur valide, plus rien à faire côté build. Sinon, itérer sur la DA.
+- Pousser `main`, surveiller la CI (`gh run list --workflow build-ipa.yml`) jusqu'au vert, corriger
+  les éventuelles erreurs de compile, télécharger l'artefact `Whamran-ipa`, vérifier le binaire +
+  les `.strings` FR/EN, puis `gh release upload v1.0.0 Whamran.ipa --clobber`.
+- Mettre à jour ce fichier (run ID + taille IPA) quand le build est vert.
 
 ## Blocages / risques
 
@@ -36,6 +40,36 @@
 - `dist/` (IPA locales) est ignoré par `.gitignore`.
 
 ## Journal
+
+- **2026-08-28 — ox-alpha (opencode)** : **Rework du mode vidéo — Studio vidéo** (demande :
+  sélectionner une vidéo, la lire in-app, bouton caméra rond **en bas au centre** pour les
+  **photos en direct** pendant la lecture + **bouton paramètres** flottant + **extraction auto de
+  N photos**) :
+  - Nouveau `UI/VideoPlayer.swift` : `VideoPlayerView` (UIViewRepresentable, `AVPlayerLayer`) avec
+    tick ~100 ms (`currentTime`) pour la capture live + tap pour lecture/pause.
+  - Nouveau `UI/VideoStudioView.swift` : écran studio plein écran — `VideoPlayerView` + overlay
+    sombre, barre du haut (annuler + temps), barre de **miniatures** numérotées des captures,
+    contrôles flottants du bas : **bouton réglages 52 pt** (gauche) + **bouton rond caméra blanc
+    74 pt** (centre, icône indigo) + badge compteur. Feuille de paramètres (detents medium/large) :
+    modèle compatible, recherche de ville (`selectedCity`), version iOS, et **stepper 1–50** +
+    bouton **« Extraire N photos »** (`extractAuto`) qui répartit N frames sur toute la durée.
+  - `Core/ImageMetadataEngine.swift` refactoré : extrait `renderToHEIC(ci:camera:date:addr:serial:)`
+    + nouvelle méthode publique `generateFrame(cg:index:model:iosVersion:city:outputDir:used:)` qui
+    applique `applySubtleChanges(seed:)` et écrit `whamran_model_ios_N.heic` avec EXIF/GPS/sériel
+    complets (type d'adresse `FakeAddress`). Les frames sont extraites aux **vrais instants vidéo**
+    via `AVAssetImageGenerator` (`appliesPreferredTrackTransform`, tolérance `.zero`).
+  - `UI/ContentView.swift` : nouveau case `Screen.videoStudio` ; sélection vidéo → studio
+    (création d'un `outputDir` temporaire unique) ; `videoStudioView` intégré au switch (dans le
+    groupe `.id(langRaw)`) ; `onFinish` remplit `images` et va à `.result` ; `newSession()` réinitialise
+    `studioDir`. `resultURLs` devient « préfère `images` si non vide » (les résultats du studio sont
+    des images). Branche `.video` de `runGeneration` désormais inatteignable (la vidéo va au studio).
+  - Recherche caméra virtuelle (web + GitHub) : le seul « virtual camera » iOS est un tweak
+    jailbreak (`ios-vcam`/`MurkAskA01`, hooks AVCaptureSession) — infaisable en app sideloadée ;
+    les plugins CoreMediaIO DAL (lvsti, seanchas116) sont **macOS-only**. Donc **aucun
+    remplacement** : l'approche EXIF + ré-encodage HEIC natif reste la plus robuste possible.
+  - Nouvelles clés FR/EN : `vst_settings`, `vst_auto_title`, `vst_auto_count`, `vst_auto_hint`,
+    `vst_auto_extract` (avec `%d`, via `AppLang.formatted`).
+  - Build : en attente du prochain run CI.
 
 - **2026-08-28 — ox-alpha (opencode)** : **Détection automatique de la langue de l'appareil**
   renforcée (demande « détection de la langue automatique des appareils ») :
