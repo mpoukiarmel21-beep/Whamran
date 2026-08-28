@@ -39,25 +39,18 @@ public enum DeviceProfiler {
     }
 
     public static func currentModel() -> DeviceModel? {
-        model(for: currentIdentifier())
-    }
-
-    private static func model(for identifier: String) -> DeviceModel? {
-        let id = identifier.trimmingCharacters(in: .whitespacesAndNewlines)
-        if let exact = all.first(where: { $0.identifier == id }) { return exact }
-        let family = id.components(separatedBy: ",").first ?? id
-        return all.first(where: { $0.identifier.hasPrefix(family + ",") })
+        DeviceDatabase.model(for: currentIdentifier())
     }
 
     /// Modèles compatibles = même puce que l'appareil courant.
     public static func compatibleModels(for identifier: String) -> [DeviceModel] {
-        guard let current = model(for: identifier) else { return [] }
-        return all.filter { $0.chip == current.chip }.sorted { $0.name < $1.name }
+        guard let current = DeviceDatabase.model(for: identifier) else { return [] }
+        return DeviceDatabase.all.filter { $0.chip == current.chip }.sorted { $0.name < $1.name }
     }
 
     /// Tous les modèles groupés par puce (pour l'UI complète).
     public static func allByChip() -> [(chip: String, models: [DeviceModel])] {
-        let chips = Array(Set(all.map { $0.chip })).sorted()
-        return chips.map { chip in (chip, all.filter { $0.chip == chip }.sorted { $0.name < $1.name }) }
+        let chips = Array(Set(DeviceDatabase.all.map { $0.chip })).sorted()
+        return chips.map { chip in (chip, DeviceDatabase.all.filter { $0.chip == chip }.sorted { $0.name < $1.name }) }
     }
 }
