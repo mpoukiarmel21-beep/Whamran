@@ -14,14 +14,15 @@
 - Repo public `mpoukiarmel21-beep/Whamran` (branch `main`). CI : `.github/workflows/build-ipa.yml`
   (macOS runner, `xcodegen` + `xcodebuild` ad-hoc → IPA → upload artifact ; publication Release
   uniquement sur push de tag).
-- Dernier build réussi : run `33218920610` (commit `0b44b04`). IPA (697 859 o) ré-uploadé
+- Dernier build réussi : run `33219802520` (commit `bc25cd9`). IPA (708 951 o) ré-uploadé
   manuellement dans la Release `v1.0.0` — **lien direct toujours** :
   `https://github.com/mpoukiarmel21-beep/Whamran/releases/download/v1.0.0/Whamran.ipa`
 
 ## En cours
 
-- **(libre)** — Rework « multi-sélection + boutons larges + adresses par image » livré (voir Journal
-  tout en haut). Build `33218920610` vert, IPA publié. À valider par l'utilisateur.
+- **(libre)** — Rework « multi-sélection + boutons larges + adresses par image » livré, puis
+  **sélecteur de langue in-app (FR/EN)** ajouté (voir Journal en haut). Build `33219802520` vert,
+  IPA publié. À valider par l'utilisateur.
 
 ## Prochaine étape
 
@@ -35,6 +36,24 @@
 - `dist/` (IPA locales) est ignoré par `.gitignore`.
 
 ## Journal
+
+- **2026-08-28 — ox-alpha (opencode)** : **Sélecteur de langue in-app (traduction de toute
+  l'app)** livré (demande « si je sélectionne l'anglais, tout doit être en anglais ») :
+  - Nouveau fichier `Core/Localization.swift` : `AppLanguage` (fr/en, détection système à défaut)
+    + `AppLang` qui charge le bundle `.lproj` **à l'exécution** (`NSLocalizedString(bundle:)`) +
+    `AppLang.string(_:)` avec **repli anglais puis clé** + `AppLang.formatted(_:_:)` pour les
+    chaînes formatées (`opt_total_hint`, `opt_selected`). Plus besoin de redémarrer l'app.
+  - Toutes les chaînes de `ContentView.swift` routées via `AppLang` (`L(_:)` → `AppLang.string`,
+    les deux `String(format:)` → `AppLang.formatted`).
+  - **Sélecteur de langue** dans `pickView` : Picker segmenté **Français / English** (chaque langue
+    affichée dans son propre nom). Changement stocké dans `UserDefaults("whamran_lang")` via
+    `@AppStorage`, et `.id(langRaw)` force le **re-rendu de tout l'arbre** → toute l'app bascule
+    instantanément (boutons, écrans, messages).
+  - `lang_title` ajouté en FR ("Langue de l'app") et EN ("App language").
+  - Vérif par script : **toutes** les clés utilisées dans le code existent dans les deux fichiers
+    FR et EN (aucune clé manquante).
+  - **Build** : run `33219802520` **vert** (1m02, nouvelle classe Swift), IPA 708 951 o, uploadé
+    dans la Release `v1.0.0`.
 
 - **2026-08-28 — ox-alpha (opencode)** : Rework « multi-sélection + boutons larges + adresses
   uniques » **terminé et livré** (demandes 1–4 de la 3e itération) :
