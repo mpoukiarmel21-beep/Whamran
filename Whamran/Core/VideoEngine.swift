@@ -22,8 +22,7 @@ public final class VideoEngine {
                                  count: Int,
                                  model: String,
                                  iosVersion: String,
-                                 countryCode: String,
-                                 cityName: String?,
+                                 city: WorldCity?,
                                  outputDir: URL,
                                  progress: ((Double) -> Void)? = nil) async throws -> [GeneratedVideo] {
         let minIOS = DeviceDatabase.all.first(where: { $0.name == model })?.minIOS ?? IOSVersionTimeline.minMajor
@@ -41,8 +40,10 @@ public final class VideoEngine {
                 date = IOSVersionTimeline.randomCaptureDate(forIOS: ios, minIOS: minIOS, maxIOS: maxIOS)
             }
 
-            let addr = LocationProvider.shared.randomAddress(countryCode: countryCode, cityName: cityName, used: &used)
+            let worldCity = city ?? LocationProvider.shared.randomWorldCity()
+            let addr = LocationProvider.shared.address(forWorld: worldCity, used: &used)
             let serial = SerialGenerator.serial()
+            let camera = VirtualCamera(model: model, ios: ios)
 
             let asset = AVURLAsset(url: sourceURL)
             let composition = AVVideoComposition(asset: asset) { request in
@@ -69,7 +70,7 @@ public final class VideoEngine {
             exporter.videoComposition = composition
             exporter.outputURL = outURL
             exporter.outputFileType = .mp4
-            exporter.metadata = buildMetadata(model: model, ios: ios, date: date, coord: (addr.lat, addr.lon))
+            exporter.metadata = buildMetadata(camera: camera, date: date, coord: (addr.lat, addr.lon))
 
             await exporter.export()
             guard exporter.status == .completed else {
@@ -85,25 +86,30 @@ public final class VideoEngine {
         return results
     }
 
-    private static func buildMetadata(model: String, ios: String, date: Date, coord: (lat: Double, lon: Double)) -> [AVMetadataItem] {
+    private static func buildMetadata(camera: VirtualCamera, date: Date, coord: (lat: Double, lon: Double)) -> [AVMetadataItem] {
         var items: [AVMetadataItem] = []
 
-        // Modèle
+        // Fabricant + modèle (caméra virtuelle)
+        items.append(makeItem(identifier: .quickTimeMetadataMake, keySpace: .quickTimeMetadata,
+                              key: "com.apple.quicktime.make", value: camera.make as NSString))
         items.append(makeItem(identifier: .quickTimeMetadataModel, keySpace: .quickTimeMetadata,
-                               key: "com.apple.quicktime.model", value: model as NSString))
+                              key: "com.apple.quicktime.model", value: camera.model as NSString))
         // Logiciel / iOS
         items.append(makeItem(identifier: .quickTimeMetadataSoftware, keySpace: .quickTimeMetadata,
-                               key: "com.apple.quicktime.software", value: ios as NSString))
+                              key: "com.apple.quicktime.software", value: "iOS \(camera.ios)" as NSString))
+        // Encodeur
+        items.append(makeItem(identifier: .quickTimeMetadataEncoder, keySpace: .quickTimeMetadata,
+                              key: "com.apple.quicktime.encoder", value: "\(camera.model) back triple camera 4.0" as NSString))
         // Localisation ISO6709
         let iso = String(format: "%+09.4f%+010.4f/", coord.lat, coord.lon)
         items.append(makeItem(identifier: .quickTimeMetadataLocationISO6709, keySpace: .quickTimeMetadata,
-                               key: "com.apple.quicktime.location.ISO6709", value: iso as NSString))
+                              key: "com.apple.quicktime.location.ISO6709", value: iso as NSString))
         // Date de création
         let f = ISO8601DateFormatter()
         f.timeZone = TimeZone.current
         f.formatOptions = [.withInternetDateTime]
         items.append(makeItem(identifier: .commonIdentifierCreationDate, keySpace: .common,
-                               key: "creationDate", value: f.string(from: date) as NSString))
+                              key: "creationDate", value: f.string(from: date) as NSString))
         return items
     }
 

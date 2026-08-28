@@ -60,15 +60,6 @@ struct MediaPicker: UIViewControllerRepresentable {
     }
 }
 
-// MARK: - Share sheet
-struct ShareSheet: UIViewControllerRepresentable {
-    let items: [Any]
-    func makeUIViewController(context: Context) -> UIActivityViewController {
-        UIActivityViewController(activityItems: items, applicationActivities: nil)
-    }
-    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
-}
-
 // MARK: - Sauvegarde dans Photos
 enum PhotoSaver {
     static func save(urls: [URL]) {

@@ -1,4 +1,5 @@
 build/
 Payload/
+dist/
 *.xcodeproj
 .DS_Store
