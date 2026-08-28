@@ -1,7 +1,7 @@
 import SwiftUI
 import PhotosUI
 
-fileprivate func L(_ key: String) -> String { NSLocalizedString(key, comment: "") }
+fileprivate func L(_ key: String) -> String { AppLang.string(key) }
 
 enum MediaInput {
     case images([Data])
@@ -37,6 +37,9 @@ struct ContentView: View {
     @State private var errorMsg: String?
     @State private var showError = false
 
+    // Langue (sélectionnable dans l'app)
+    @AppStorage(AppLang.storageKey) private var langRaw: String = ""
+
     // Results
     @State private var images: [GeneratedImage] = []
     @State private var videos: [GeneratedVideo] = []
@@ -58,6 +61,7 @@ struct ContentView: View {
                 case .result: resultView
                 }
             }
+            .id(langRaw) // re-rendre tout l'arbre quand la langue change
             .alert(L("error"), isPresented: $showError) {
                 Button("OK") { }
             } message: {
@@ -108,6 +112,27 @@ struct ContentView: View {
                 }
                 .padding(.horizontal, 32)
                 .padding(.top, 8)
+
+                // Sélecteur de langue (traduction de toute l'app en temps réel)
+                VStack(spacing: 10) {
+                    Text(L("lang_title"))
+                        .font(.system(.caption, design: .rounded, weight: .semibold))
+                        .foregroundStyle(mutedText)
+                    Picker("", selection: $langRaw) {
+                        ForEach(AppLanguage.allCases) { lang in
+                            Text(lang.displayName).tag(lang.rawValue)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .frame(maxWidth: 260)
+                }
+                .padding(14)
+                .background(Color.white, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.black.opacity(0.06), lineWidth: 1))
+                .shadow(color: Color.black.opacity(0.05), radius: 10, y: 4)
+                .onAppear {
+                    if langRaw.isEmpty { langRaw = AppLanguage.system.rawValue }
+                }
 
                 Spacer()
                 Text(appFooter)
@@ -276,7 +301,7 @@ struct ContentView: View {
                             }
                         }
                         let total = input?.sourceCount ?? 0
-                        Text(String(format: NSLocalizedString("opt_total_hint", comment: ""), total, total * count))
+                        Text(AppLang.formatted("opt_total_hint", total, total * count))
                             .font(.system(.caption, design: .rounded))
                             .foregroundStyle(mutedText)
                     }
@@ -378,7 +403,7 @@ struct ContentView: View {
         if case .images(let datas) = input {
             return AnyView(
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(String(format: NSLocalizedString("opt_selected", comment: ""), datas.count))
+                    Text(AppLang.formatted("opt_selected", datas.count))
                         .font(.system(.subheadline, design: .rounded, weight: .semibold))
                         .foregroundStyle(mutedText)
                     ScrollView(.horizontal, showsIndicators: false) {
