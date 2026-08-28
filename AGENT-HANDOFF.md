@@ -14,24 +14,24 @@
 - Repo public `mpoukiarmel21-beep/Whamran` (branch `main`). CI : `.github/workflows/build-ipa.yml`
   (macOS runner, `xcodegen` + `xcodebuild` ad-hoc → IPA → upload artifact ; publication Release
   uniquement sur push de tag).
-- Dernier build réussi : run `33221144866` (commit `86795e9`, « fix compile »). **Studio vidéo
-  livré**. Nouvel IPA (816 183 o) téléchargé, vérifié (binaire + `.strings` FR/EN + clés `vst_*`
-  présentes) puis **ré-uploadé** dans la Release `v1.0.0` — **lien direct stable** :
+- Dernier build réussi : run `33221945110` (commit `551bdc0`, « résolution différente »). **Studio
+  vidéo avec résolution réduite livré**. Nouvel IPA (816 916 o) téléchargé, vérifié (binaire +
+  `.strings` FR/EN + clé `vst_settings`) puis **ré-uploadé** dans la Release `v1.0.0` — **lien
+  direct stable** :
   `https://github.com/mpoukiarmel21-beep/Whamran/releases/download/v1.0.0/Whamran.ipa`
 
 ## En cours
 
-- **(libre)** — **Résolution réduite du studio vidéo ajoutée (build à valider)** : mode photo
-  garde la pleine résolution, studio vidéo sort des photos plus petites (grand côté ≤ 1400 px,
-  `maxDimension` via `ImageMetadataEngine`). Pousser `main` puis surveiller la CI ; quand vert,
-  télécharger l'artefact `Whamran-ipa` et re-uploader dans la Release `v1.0.0`.
+- **(libre)** — **Résolution réduite du studio vidéo livrée et build vert** : mode photo garde la
+  pleine résolution, studio vidéo sort des photos plus petites (grand côté ≤ 1400 px,
+  `maxDimension`). Build vert `33221945110`, IPA 816 916 o uploadé dans la Release `v1.0.0`.
 
 ## Prochaine étape
 
-- Pousser `main`, surveiller la CI (`gh run list --workflow build-ipa.yml`) jusqu'au vert, corriger
-  les éventuelles erreurs de compile, télécharger l'artefact `Whamran-ipa`, vérifier le binaire +
-  les `.strings` FR/EN, puis `gh release upload v1.0.0 Whamran.ipa --clobber`.
-- Mettre à jour ce fichier (run ID + taille IPA) quand le build est vert.
+- **Rien en attente côté build.** Pour une future itération : pousser `main`, surveiller la CI
+  (`gh run list --workflow build-ipa.yml`) jusqu'au vert, télécharger l'artefact `Whamran-ipa`,
+  vérifier le binaire + les `.strings` FR/EN, puis `gh release upload v1.0.0 Whamran.ipa --clobber`
+  et mettre à jour ce fichier (run ID + taille IPA).
 
 ## Blocages / risques
 
@@ -53,7 +53,8 @@
   - Le studio vidéo passe `maxDimension: 1400` sur les deux chemins (capture live + extraction
     auto) → les photos de vidéo sortent plus petites (grand côté ≤ 1400 px), réaliste pour des
     frames ; les dimensions EXIF (`PixelXDimension`) suivent correctement la taille réduite.
-  - Build non encore lancé (à suivre sur prochain run CI), IPA non re-uploadé.
+  - **Build livré** : run `33221945110` **vert**, IPA 816 916 o, vérifié (binaire + `vst_settings`
+    dans FR/EN) et **uploadé** dans la Release `v1.0.0`.
 
 - **2026-08-28 — ox-alpha (opencode)** : **Rework du mode vidéo — Studio vidéo** (demande :
   sélectionner une vidéo, la lire in-app, bouton caméra rond **en bas au centre** pour les
