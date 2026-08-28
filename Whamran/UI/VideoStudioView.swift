@@ -472,7 +472,7 @@ struct VideoStudioView: View {
         generator.requestedTimeToleranceBefore = .zero
         generator.requestedTimeToleranceAfter = .zero
         let t = CMTime(seconds: time, preferredTimescale: 600)
-        let (cg, _) = try generator.copyCGImage(at: t, actualTime: nil)
+        let cg = try generator.copyCGImage(at: t, actualTime: nil)
         return cg
     }
 

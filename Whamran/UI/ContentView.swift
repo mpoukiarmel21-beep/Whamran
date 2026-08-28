@@ -1,7 +1,7 @@
 import SwiftUI
 import PhotosUI
 
-fileprivate func L(_ key: String) -> String { AppLang.string(key) }
+func L(_ key: String) -> String { AppLang.string(key) }
 
 enum MediaInput {
     case images([Data])
