@@ -60,6 +60,50 @@ struct MediaPicker: UIViewControllerRepresentable {
     }
 }
 
+// MARK: - Pont PHPicker multi-sélection (images)
+struct MediaMultiPicker: UIViewControllerRepresentable {
+    let filter: PHPickerFilter
+    let onPicked: ([PickedMedia]) -> Void
+
+    func makeUIViewController(context: Context) -> PHPickerViewController {
+        var config = PHPickerConfiguration()
+        config.filter = filter
+        config.selectionLimit = 0 // illimité
+        config.preferredAssetRepresentationMode = .current
+        let picker = PHPickerViewController(configuration: config)
+        picker.delegate = context.coordinator
+        return picker
+    }
+
+    func updateUIViewController(_ uiViewController: PHPickerViewController, context: Context) {}
+
+    func makeCoordinator() -> Coordinator { Coordinator(onPicked: onPicked) }
+
+    final class Coordinator: NSObject, PHPickerViewControllerDelegate {
+        let onPicked: ([PickedMedia]) -> Void
+
+        init(onPicked: @escaping ([PickedMedia]) -> Void) { self.onPicked = onPicked }
+
+        func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+            picker.dismiss(animated: true)
+            guard !results.isEmpty else { onPicked([]); return }
+            var picked: [PickedMedia] = []
+            let group = DispatchGroup()
+            for item in results {
+                group.enter()
+                item.itemProvider.loadFileRepresentation(forTypeIdentifier: "public.image") { url, _ in
+                    defer { group.leave() }
+                    guard let url, let data = try? Data(contentsOf: url) else { return }
+                    picked.append(.image(data))
+                }
+            }
+            group.notify(queue: .main) {
+                self.onPicked(picked)
+            }
+        }
+    }
+}
+
 // MARK: - Sauvegarde dans Photos
 enum PhotoSaver {
     static func save(urls: [URL]) {

@@ -91,12 +91,14 @@ public final class LocationProvider {
     }
 
     /// Adresse fictive située dans la ville du monde sélectionnée (ou aléatoire).
+    /// Chaque appel renvoie une adresse ET un point GPS différents (dans la même ville).
     public func address(forWorld city: WorldCity, used: inout Set<String>) -> FakeAddress {
         let country = country(code: city.code)
         let streets: [String] = country?.streets ?? ["Main Street", "Rue de la Ville", "Avenue Centrale", "Calle Mayor", "Bahnhofstrasse"]
-        let jitterLat = Double.random(in: -0.006...0.006)
+        // Décalage GPS visible mais toujours dans la ville (échelle ~quelques km).
+        let jitterLat = Double.random(in: -0.045...0.045)
         let lonScale = 1.0 / max(0.1, cos(city.lat * .pi / 180))
-        let jitterLon = Double.random(in: -0.006...0.006) * lonScale
+        let jitterLon = Double.random(in: -0.045...0.045) * lonScale
         let lat = city.lat + jitterLat
         let lon = city.lon + jitterLon
 
@@ -107,7 +109,7 @@ public final class LocationProvider {
             let number = Int.random(in: 1...220)
             full = "\(street) \(number), \(city.name), \(city.country)"
             attempts += 1
-        } while used.contains(full) && attempts < 8
+        } while used.contains(full) && attempts < 12
 
         used.insert(full)
         return FakeAddress(full: full, lat: lat, lon: lon, cityName: city.name,

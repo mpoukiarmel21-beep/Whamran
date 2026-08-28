@@ -1,5 +1,6 @@
-"import_subtitle" = "Sélectionnez une image ou une vidéo à transformer en vraie capture de caméra";
+"import_subtitle" = "Sélectionnez une ou plusieurs images, ou une vidéo, à transformer en vraie capture de caméra";
 "import_image" = "Choisir une image";
+"import_image_multi" = "Choisir une ou plusieurs images";
 "import_video" = "Choisir une vidéo";
 "options_title" = "Options de génération";
 "opt_chip" = "Puce détectée";
@@ -12,7 +13,10 @@
 "opt_location_random" = "Emplacement aléatoire dans le monde";
 "opt_ios" = "Version iOS";
 "opt_ios_auto" = "Auto (cohérent)";
-"opt_count" = "Nombre de fichiers";
+"opt_count" = "Par image";
+"opt_count_per_source" = "Sorties par image";
+"opt_total_hint" = "%d image(s) sélectionnée(s) → %d fichiers générés";
+"opt_selected" = "%d image(s) sélectionnée(s)";
 "opt_count_images" = "Images";
 "opt_count_videos" = "Vidéos";
 "opt_count_images_hint" = "Chaque image aura une adresse, une date et un réglage de caméra différents";

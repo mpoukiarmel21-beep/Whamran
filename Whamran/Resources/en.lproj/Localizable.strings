@@ -1,5 +1,6 @@
-"import_subtitle" = "Select an image or video to turn into a real camera capture";
+"import_subtitle" = "Select one or more images or a video to turn into real camera captures";
 "import_image" = "Choose an image";
+"import_image_multi" = "Choose one or more images";
 "import_video" = "Choose a video";
 "options_title" = "Generation options";
 "opt_chip" = "Detected chip";
@@ -12,7 +13,10 @@
 "opt_location_random" = "Random worldwide location";
 "opt_ios" = "iOS version";
 "opt_ios_auto" = "Auto (consistent)";
-"opt_count" = "Number of files";
+"opt_count" = "Per image";
+"opt_count_per_source" = "Outputs per image";
+"opt_total_hint" = "%d image(s) selected → %d files generated";
+"opt_selected" = "%d image(s) selected";
 "opt_count_images" = "Images";
 "opt_count_videos" = "Videos";
 "opt_count_images_hint" = "Each image gets a different address, date and camera settings";

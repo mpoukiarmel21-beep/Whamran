@@ -4,10 +4,16 @@ import PhotosUI
 fileprivate func L(_ key: String) -> String { NSLocalizedString(key, comment: "") }
 
 enum MediaInput {
-    case image(Data)
+    case images([Data])
     case video(URL)
-    var isImage: Bool {
-        if case .image = self { true } else { false }
+    var isVideo: Bool {
+        if case .video = self { true } else { false }
+    }
+    var sourceCount: Int {
+        switch self {
+        case .images(let arr): return arr.count
+        case .video: return 1
+        }
     }
 }
 
@@ -52,8 +58,6 @@ struct ContentView: View {
                 case .result: resultView
                 }
             }
-            .navigationTitle(titleForScreen)
-            .toolbar(.hidden, for: .navigationBar)
             .alert(L("error"), isPresented: $showError) {
                 Button("OK") { }
             } message: {
@@ -63,15 +67,6 @@ struct ContentView: View {
         .preferredColorScheme(.light)
     }
 
-    private var titleForScreen: String {
-        switch screen {
-        case .pick: return "Whamran"
-        case .options: return L("options_title")
-        case .processing: return L("proc_title")
-        case .result: return L("result_title")
-        }
-    }
-
     // MARK: - Import
     private var pickView: some View {
         ZStack {
@@ -79,14 +74,13 @@ struct ContentView: View {
             VStack(spacing: 22) {
                 Spacer()
 
-                // Logo + marque
                 ZStack {
                     RoundedRectangle(cornerRadius: 28, style: .continuous)
                         .fill(accentGradient)
-                        .frame(width: 108, height: 108)
-                        .shadow(color: accentGradientColor.opacity(0.35), radius: 20, y: 10)
+                        .frame(width: 116, height: 116)
+                        .shadow(color: accentColor.opacity(0.35), radius: 20, y: 10)
                     Image(systemName: "camera.aperture")
-                        .font(.system(size: 52, weight: .semibold))
+                        .font(.system(size: 54, weight: .semibold))
                         .foregroundStyle(.white)
                 }
 
@@ -97,20 +91,18 @@ struct ContentView: View {
                     .font(.system(.body, design: .rounded))
                     .foregroundStyle(mutedText)
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal, 40)
+                    .padding(.horizontal, 44)
 
                 VStack(spacing: 14) {
                     Button { showPickerImage = true } label: {
-                        Label(L("import_image"), systemImage: "photo.on.rectangle")
-                            .font(.system(.headline, design: .rounded, weight: .semibold))
-                            .frame(maxWidth: .infinity, minHeight: 56)
+                        Label(L("import_image_multi"), systemImage: "photo.stack")
+                            .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(WhamranButtonStyle(kind: .primary))
 
                     Button { showPickerVideo = true } label: {
                         Label(L("import_video"), systemImage: "video.fill")
-                            .font(.system(.headline, design: .rounded, weight: .semibold))
-                            .frame(maxWidth: .infinity, minHeight: 56)
+                            .frame(maxWidth: .infinity)
                     }
                     .buttonStyle(WhamranButtonStyle(kind: .secondary))
                 }
@@ -125,21 +117,23 @@ struct ContentView: View {
             }
         }
         .sheet(isPresented: $showPickerImage) {
-            MediaPicker(filter: .images) { media in
-                if case .image(let data) = media {
-                    input = .image(data)
-                    screen = .options
-                }
+            MediaMultiPicker(filter: .images) { picked in
                 showPickerImage = false
+                let datas = picked.compactMap { media -> Data? in
+                    if case .image(let d) = media { return d } else { return nil }
+                }
+                guard !datas.isEmpty else { return }
+                input = .images(datas)
+                screen = .options
             }
         }
         .sheet(isPresented: $showPickerVideo) {
             MediaPicker(filter: .videos) { media in
+                showPickerVideo = false
                 if case .video(let url) = media {
                     input = .video(url)
                     screen = .options
                 }
-                showPickerVideo = false
             }
         }
     }
@@ -149,8 +143,7 @@ struct ContentView: View {
         ZStack {
             appBackground
             ScrollView {
-                VStack(spacing: 18) {
-                    // Aperçu du média sélectionné
+                VStack(spacing: 16) {
                     previewHeader
 
                     // Caméra virtuelle
@@ -176,7 +169,7 @@ struct ContentView: View {
                         }
                     }
 
-                    // Fake localisation : recherche de villes (pas de carte)
+                    // Fake localisation : recherche de villes
                     sectionCard(title: L("opt_location_title"), icon: "mappin.and.ellipse") {
                         HStack(spacing: 10) {
                             Image(systemName: "magnifyingglass").foregroundStyle(mutedText)
@@ -266,10 +259,10 @@ struct ContentView: View {
                         }
                     }
 
-                    // Quantité (stepper visible)
+                    // Quantité PAR image
                     sectionCard(title: L("opt_count"), icon: "photo.stack") {
                         HStack {
-                            Text(input?.isImage == true ? L("opt_count_images") : L("opt_count_videos"))
+                            Text(L("opt_count_per_source"))
                                 .font(.system(.subheadline, design: .rounded, weight: .semibold))
                                 .foregroundStyle(darkText)
                             Spacer()
@@ -282,14 +275,15 @@ struct ContentView: View {
                                 stepperButton("+", disabled: count >= 50) { if count < 50 { count += 1 } }
                             }
                         }
-                        Text(input?.isImage == true ? L("opt_count_images_hint") : L("opt_count_videos_hint"))
+                        let total = input?.sourceCount ?? 0
+                        Text(String(format: NSLocalizedString("opt_total_hint", comment: ""), total, total * count))
                             .font(.system(.caption, design: .rounded))
                             .foregroundStyle(mutedText)
                     }
 
                     Button(L("opt_generate")) { runGeneration() }
                         .buttonStyle(WhamranButtonStyle(kind: .primary))
-                        .frame(maxWidth: .infinity, minHeight: 58)
+                        .frame(maxWidth: .infinity)
                         .padding(.top, 4)
                 }
                 .padding(20)
@@ -302,7 +296,7 @@ struct ContentView: View {
             Text(symbol)
                 .font(.system(size: 20, weight: .heavy, design: .rounded))
                 .foregroundStyle(disabled ? Color.gray.opacity(0.5) : .white)
-                .frame(width: 40, height: 40)
+                .frame(width: 44, height: 44)
                 .background(disabled ? AnyShapeStyle(Color.gray.opacity(0.35)) : AnyShapeStyle(accentGradient), in: Circle())
         }
         .disabled(disabled)
@@ -338,7 +332,6 @@ struct ContentView: View {
         ZStack {
             appBackground.ignoresSafeArea()
             VStack(alignment: .leading, spacing: 0) {
-                // Titre bien visible
                 Text(L("result_title"))
                     .font(.system(size: 30, weight: .heavy, design: .rounded))
                     .foregroundStyle(accent)
@@ -353,14 +346,11 @@ struct ContentView: View {
                 } else {
                     ScrollView {
                         LazyVStack(spacing: 14) {
-                            if input?.isImage == true {
-                                ForEach(images, id: \.url) { img in
-                                    ResultCard(image: img)
-                                }
-                            } else {
-                                ForEach(videos, id: \.url) { vid in
-                                    VideoResultCard(video: vid)
-                                }
+                            ForEach(images, id: \.url) { img in
+                                ResultCard(image: img)
+                            }
+                            ForEach(videos, id: \.url) { vid in
+                                VideoResultCard(video: vid)
                             }
                         }
                         .padding(.horizontal, 20)
@@ -371,10 +361,10 @@ struct ContentView: View {
                     VStack(spacing: 10) {
                         Button(L("result_save")) { PhotoSaver.save(urls: resultURLs) }
                             .buttonStyle(WhamranButtonStyle(kind: .primary))
-                            .frame(maxWidth: .infinity, minHeight: 56)
+                            .frame(maxWidth: .infinity)
                         Button(L("result_new_session")) { newSession() }
                             .buttonStyle(WhamranButtonStyle(kind: .secondary))
-                            .frame(maxWidth: .infinity, minHeight: 56)
+                            .frame(maxWidth: .infinity)
                     }
                     .padding(.horizontal, 20)
                     .padding(.bottom, 14)
@@ -385,34 +375,54 @@ struct ContentView: View {
 
     // MARK: - Composants visuels
     private var previewHeader: some View {
-        ZStack(alignment: .bottomLeading) {
-            if case .image(let data) = input, let ui = UIImage(data: data) {
-                Image(uiImage: ui).resizable().scaledToFill()
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 210)
-                    .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-            } else {
-                RoundedRectangle(cornerRadius: 22, style: .continuous)
-                    .fill(Color.black.opacity(0.9))
-                    .frame(height: 120)
-                    .overlay(
-                        VStack(spacing: 10) {
-                            Image(systemName: "video.fill").font(.system(size: 34)).foregroundStyle(.white.opacity(0.85))
-                            Text(L("import_video")).font(.system(.headline, design: .rounded)).foregroundStyle(.white)
+        if case .images(let datas) = input {
+            return AnyView(
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(String(format: NSLocalizedString("opt_selected", comment: ""), datas.count))
+                        .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                        .foregroundStyle(mutedText)
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 10) {
+                            ForEach(Array(datas.enumerated()), id: \.offset) { _, data in
+                                if let ui = UIImage(data: data) {
+                                    Image(uiImage: ui)
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 104, height: 104)
+                                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                                        .overlay(RoundedRectangle(cornerRadius: 14).stroke(Color.white, lineWidth: 2))
+                                        .shadow(color: Color.black.opacity(0.15), radius: 6, y: 3)
+                                }
+                            }
                         }
-                    )
-            }
-            VStack(alignment: .leading, spacing: 2) {
-                Text(input?.isImage == true ? L("import_image") : L("import_video"))
-                    .font(.system(.caption, design: .rounded, weight: .bold))
-                    .foregroundStyle(.white)
-                Text(L("options_title"))
-                    .font(.system(.subheadline, design: .rounded, weight: .semibold))
-                    .foregroundStyle(.white.opacity(0.9))
-            }
-            .padding(10)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-            .padding(12)
+                    }
+                }
+                .padding(12)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color.white, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            )
+        } else {
+            return AnyView(
+                ZStack(alignment: .bottomLeading) {
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .fill(Color.black.opacity(0.9))
+                        .frame(height: 120)
+                        .overlay(
+                            VStack(spacing: 10) {
+                                Image(systemName: "video.fill").font(.system(size: 34)).foregroundStyle(.white.opacity(0.85))
+                                Text(L("import_video")).font(.system(.headline, design: .rounded)).foregroundStyle(.white)
+                            }
+                        )
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(L("import_video"))
+                            .font(.system(.caption, design: .rounded, weight: .bold))
+                            .foregroundStyle(.white)
+                    }
+                    .padding(10)
+                    .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .padding(12)
+                }
+            )
         }
     }
 
@@ -433,7 +443,6 @@ struct ContentView: View {
     }
 
     private var accentColor: Color { Color(red: 0.29, green: 0.33, blue: 0.95) }
-    private var accentGradientColor: Color { accentColor }
     private var accent: Color { accentColor }
     private var darkText: Color { Color(red: 0.10, green: 0.11, blue: 0.16) }
     private var mutedText: Color { Color(red: 0.42, green: 0.46, blue: 0.55) }
@@ -466,7 +475,7 @@ struct ContentView: View {
     }
 
     private var resultURLs: [URL] {
-        input?.isImage == true ? images.map { $0.url } : videos.map { $0.url }
+        input?.isVideo == true ? videos.map { $0.url } : images.map { $0.url }
     }
 
     private func clearLocation() {
@@ -493,18 +502,33 @@ struct ContentView: View {
 
         Task {
             do {
-                if case .image(let data) = input {
-                    let res = try ImageMetadataEngine.generate(
-                        source: data, count: count, model: selectedModel,
-                        iosVersion: iosChoice, city: selectedCity,
-                        outputDir: dir) { p in Task { @MainActor in progress = p } }
-                    await MainActor.run { images = res; videos = []; screen = .result }
-                } else if case .video(let url) = input {
+                switch input {
+                case .images(let sources):
+                    var all: [GeneratedImage] = []
+                    let totalOutputs = sources.count * count
+                    var completed = 0
+                    for (sidx, source) in sources.enumerated() {
+                        let sourceDir = dir.appendingPathComponent("s\(sidx)")
+                        try? FileManager.default.createDirectory(at: sourceDir, withIntermediateDirectories: true)
+                        let res = try ImageMetadataEngine.generate(
+                            source: source, count: count, model: selectedModel,
+                            iosVersion: iosChoice, city: selectedCity,
+                            outputDir: sourceDir) { p in
+                                let fraction = (Double(completed) + Double(count) * p) / Double(totalOutputs)
+                                Task { @MainActor in progress = fraction }
+                            }
+                        completed += count
+                        all.append(contentsOf: res)
+                    }
+                    await MainActor.run { images = all; videos = []; screen = .result }
+                case .video(let url):
                     let res = try await VideoEngine.generate(
                         sourceURL: url, count: count, model: selectedModel,
                         iosVersion: iosChoice, city: selectedCity,
                         outputDir: dir) { p in Task { @MainActor in progress = p } }
                     await MainActor.run { videos = res; images = []; screen = .result }
+                case nil:
+                    await MainActor.run { screen = .pick }
                 }
             } catch {
                 await MainActor.run {
@@ -517,24 +541,26 @@ struct ContentView: View {
     }
 }
 
-// MARK: - Bouton stylisé (DA commune)
+// MARK: - Bouton stylisé (DA commune, rectangle large)
 enum ButtonKind { case primary, secondary }
 
 struct WhamranButtonStyle: ButtonStyle {
     var kind: ButtonKind
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.system(.headline, design: .rounded, weight: .semibold))
+            .font(.system(.body, design: .rounded, weight: .semibold))
             .foregroundStyle(kind == .primary ? AnyShapeStyle(Color.white) : AnyShapeStyle(Color(red: 0.24, green: 0.30, blue: 0.90)))
+            .padding(.vertical, 16)
+            .frame(maxWidth: .infinity) // bouton rectangle pleine largeur, DA homogène
             .background(kind == .primary ? AnyShapeStyle(appGradient) : AnyShapeStyle(Color.white),
-                        in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        in: RoundedRectangle(cornerRadius: 14, style: .continuous))
             .overlay(
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
                     .stroke(kind == .primary ? Color.clear : Color(red: 0.24, green: 0.30, blue: 0.90).opacity(0.5), lineWidth: 1.5)
             )
-            .shadow(color: kind == .primary ? appGradientColor.opacity(0.3) : Color.black.opacity(0.06),
-                    radius: (kind == .primary ? 12 : 6), y: 4)
-            .scaleEffect(configuration.isPressed ? 0.97 : 1)
+            .shadow(color: kind == .primary ? appGradientColor.opacity(0.25) : Color.black.opacity(0.06),
+                    radius: (kind == .primary ? 8 : 4), y: 3)
+            .scaleEffect(configuration.isPressed ? 0.98 : 1)
             .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
     }
     private var appGradient: LinearGradient {
@@ -567,8 +593,8 @@ private struct ResultCard: View {
                     .foregroundStyle(Color(red: 0.10, green: 0.11, blue: 0.16))
                 metaRow(icon: "apple.logo", text: IOSVersionTimeline.subtitle(image.iosVersion))
                 metaRow(icon: "calendar", text: fmt(image.captureDate))
-                metaRow(icon: "mappin.and.ellipse",
-                        text: image.city != "" ? "\(image.city), \(image.country)" : image.address)
+                // Adresse de rue complète : différente pour chaque image
+                metaRow(icon: "mappin.and.ellipse", text: image.address)
                 metaRow(icon: "number.circle", text: "\(L("result_serial")) : \(image.serial)")
             }
             .padding(.horizontal, 4)
@@ -605,8 +631,7 @@ private struct VideoResultCard: View {
                     .foregroundStyle(Color(red: 0.10, green: 0.11, blue: 0.16))
                 metaRow(icon: "apple.logo", text: IOSVersionTimeline.subtitle(video.iosVersion))
                 metaRow(icon: "calendar", text: fmt(video.captureDate))
-                metaRow(icon: "mappin.and.ellipse",
-                        text: video.city != "" ? "\(video.city), \(video.country)" : video.address)
+                metaRow(icon: "mappin.and.ellipse", text: video.address)
                 metaRow(icon: "number.circle", text: "\(L("result_serial")) : \(video.serial)")
             }
             .padding(.horizontal, 4)
