@@ -303,7 +303,7 @@ struct ContentView: View {
                 .font(.system(size: 20, weight: .heavy, design: .rounded))
                 .foregroundStyle(disabled ? Color.gray.opacity(0.5) : .white)
                 .frame(width: 40, height: 40)
-                .background(disabled ? Color.gray.opacity(0.35) : accentGradient, in: Circle())
+                .background(disabled ? AnyShapeStyle(Color.gray.opacity(0.35)) : AnyShapeStyle(accentGradient), in: Circle())
         }
         .disabled(disabled)
         .buttonStyle(.plain)
