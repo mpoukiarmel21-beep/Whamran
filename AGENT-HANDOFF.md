@@ -14,15 +14,15 @@
 - Repo public `mpoukiarmel21-beep/Whamran` (branch `main`). CI : `.github/workflows/build-ipa.yml`
   (macOS runner, `xcodegen` + `xcodebuild` ad-hoc → IPA → upload artifact ; publication Release
   uniquement sur push de tag).
-- Dernier build réussi : run `33219802520` (commit `bc25cd9`). IPA (708 951 o) ré-uploadé
+- Dernier build réussi : run `33220031532` (commit `719cf17`). IPA (709 131 o) ré-uploadé
   manuellement dans la Release `v1.0.0` — **lien direct toujours** :
   `https://github.com/mpoukiarmel21-beep/Whamran/releases/download/v1.0.0/Whamran.ipa`
 
 ## En cours
 
-- **(libre)** — Rework « multi-sélection + boutons larges + adresses par image » livré, puis
-  **sélecteur de langue in-app (FR/EN)** ajouté (voir Journal en haut). Build `33219802520` vert,
-  IPA publié. À valider par l'utilisateur.
+- **(libre)** — Rework multi-selection/boutons/adresses livré, sélecteur de langue in-app (FR/EN)
+  livré, **détection automatique de la langue de l'appareil** renforcée (voir Journal en haut).
+  Build `33220031532` vert, IPA publié. À valider par l'utilisateur.
 
 ## Prochaine étape
 
@@ -36,6 +36,17 @@
 - `dist/` (IPA locales) est ignoré par `.gitignore`.
 
 ## Journal
+
+- **2026-08-28 — ox-alpha (opencode)** : **Détection automatique de la langue de l'appareil**
+  renforcée (demande « détection de la langue automatique des appareils ») :
+  - `AppLanguage.system` réécrit : parcourt `Locale.preferredLanguages` de l'iPhone (le "fr-FR",
+    "en-US", "de-DE"…) et renvoie la **première langue supportée** par l'app ; sinon repli
+    **anglais** (fallback universel). Plus de test rigide « fr / sinon en ».
+  - Généralisable : ajouter un nouveau `.lproj` (ex : `es.lproj`) + un case `es` suffit pour que la
+    détection choisisse automatiquement l'espagnol sur un appareil espagnol.
+  - Au 1er lancement, le sélecteur de langue affiche la langue détectée de l'appareil ; l'utilisateur
+    peut ensuite la changer à la main (choix mémorisé dans `UserDefaults`).
+  - **Build** : run `33220031532` **vert** (56s), IPA 709 131 o, uploadé dans la Release `v1.0.0`.
 
 - **2026-08-28 — ox-alpha (opencode)** : **Sélecteur de langue in-app (traduction de toute
   l'app)** livré (demande « si je sélectionne l'anglais, tout doit être en anglais ») :
