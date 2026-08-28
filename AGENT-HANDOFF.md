@@ -14,23 +14,24 @@
 - Repo public `mpoukiarmel21-beep/Whamran` (branch `main`). CI : `.github/workflows/build-ipa.yml`
   (macOS runner, `xcodegen` + `xcodebuild` ad-hoc → IPA → upload artifact ; publication Release
   uniquement sur push de tag).
-- Dernier build réussi : run `33220031532` (commit `719cf17`). IPA (709 131 o) ré-uploadé
-  manuellement dans la Release `v1.0.0` — **lien direct toujours** :
+- Dernier build réussi : run `33221144866` (commit `86795e9`, « fix compile »). **Studio vidéo
+  livré**. Nouvel IPA (816 183 o) téléchargé, vérifié (binaire + `.strings` FR/EN + clés `vst_*`
+  présentes) puis **ré-uploadé** dans la Release `v1.0.0` — **lien direct stable** :
   `https://github.com/mpoukiarmel21-beep/Whamran/releases/download/v1.0.0/Whamran.ipa`
 
 ## En cours
 
-- **(libre)** — **Rework du mode vidéo livré (en cours de build)** : `VideoStudioView` (voir
-  Journal en haut) — lecteur vidéo plein écran, bouton rond caméra (capture "live photo"),
-  bouton paramètres flottant, mode **extraction auto de N photos**, mêmes simulations
-  ville/modèle/iOS. À valider sur le prochain run CI puis à uploader dans la Release.
+- **(libre)** — **Rework du mode vidéo livré et build vert** : `VideoStudioView` (voir Journal en
+  haut) — lecteur vidéo plein écran, bouton rond caméra (capture "live photo"), bouton paramètres
+  flottant, mode **extraction auto de N photos**, mêmes simulations ville/modèle/iOS. Build vert
+  `33221144866`, IPA uploadé dans la Release `v1.0.0`.
 
 ## Prochaine étape
 
-- Pousser `main`, surveiller la CI (`gh run list --workflow build-ipa.yml`) jusqu'au vert, corriger
-  les éventuelles erreurs de compile, télécharger l'artefact `Whamran-ipa`, vérifier le binaire +
-  les `.strings` FR/EN, puis `gh release upload v1.0.0 Whamran.ipa --clobber`.
-- Mettre à jour ce fichier (run ID + taille IPA) quand le build est vert.
+- **Rien en attente côté build.** Pour une future itération : pousser `main`, surveiller la CI
+  (`gh run list --workflow build-ipa.yml`) jusqu'au vert, télécharger l'artefact `Whamran-ipa`,
+  vérifier le binaire + les `.strings` FR/EN, puis `gh release upload v1.0.0 Whamran.ipa --clobber`
+  et mettre à jour ce fichier (run ID + taille IPA).
 
 ## Blocages / risques
 
@@ -69,7 +70,12 @@
     remplacement** : l'approche EXIF + ré-encodage HEIC natif reste la plus robuste possible.
   - Nouvelles clés FR/EN : `vst_settings`, `vst_auto_title`, `vst_auto_count`, `vst_auto_hint`,
     `vst_auto_extract` (avec `%d`, via `AppLang.formatted`).
-  - Build : en attente du prochain run CI.
+  - **Build livré** : premier run `33221060932` échoué (2 erreurs de compile : `L()` était
+    `fileprivate` donc inutilisable depuis `VideoStudioView.swift`, et `copyCGImage` renvoie un
+    `CGImage` simple, pas un tuple) → commit `86795e9` corrige les deux (`L` passé internal,
+    suppression du destructuring de tuple) ⇒ run `33221144866` **vert** (1m04). IPA 816 183 o
+    (grossi p/r aux 709 131 o de l'iter précédente : le studio vidéo y est inclus), vérifié
+    (binaire + `vst_*` dans FR/EN), **uploadé** dans la Release `v1.0.0`.
 
 - **2026-08-28 — ox-alpha (opencode)** : **Détection automatique de la langue de l'appareil**
   renforcée (demande « détection de la langue automatique des appareils ») :
