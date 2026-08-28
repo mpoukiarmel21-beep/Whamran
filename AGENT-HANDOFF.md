@@ -14,23 +14,18 @@
 - Repo public `mpoukiarmel21-beep/Whamran` (branch `main`). CI : `.github/workflows/build-ipa.yml`
   (macOS runner, `xcodegen` + `xcodebuild` ad-hoc → IPA → upload artifact ; publication Release
   uniquement sur push de tag).
-- Dernier build réussi : run `33216162559` (commit `ec087e3`). IPA (616 245 o) ré-uploadé
+- Dernier build réussi : run `33218103288` (commit `ff8cb27`). IPA (694 614 o) ré-uploadé
   manuellement dans la Release `v1.0.0` — **lien direct toujours** :
   `https://github.com/mpoukiarmel21-beep/Whamran/releases/download/v1.0.0/Whamran.ipa`
 
 ## En cours
 
-- **(opencode, 2026-08-28)** — Nouveau rework « DA + flux » demandé par l'utilisateur, appliqué
-  localement (pas encore pushé). Voir Journal tout en haut : thème clair lisible, police arrondie,
-  boutons unifiés, navigation auto vers les options avec aperçu, suppression de la carte, stepper
-  +/- bien visible, nouveau logo (anneau + 7 lames, sans le « W »). À pusher puis à valider via CI.
+- **(libre)** — Nouveau rework « DA + flux » livré et pushé (voir Journal tout en haut). Build
+  `33218103288` vert, IPA uploaé dans la Release. À valider par l'utilisateur.
 
 ## Prochaine étape
 
-- Pousser le commit du nouveau rework sur `main`, attendre le build Actions **vert**, puis récupérer
-  l'artefact `Whamran-ipa` et l'uploader dans la Release `v1.0.0`
-  (`gh release upload v1.0.0 Whamran.ipa --clobber`) — la CI ne publie qu'aux pushes de **tag**,
-  pas à `main`.
+- Si l'utilisateur valide, plus rien à faire côté build. Sinon, itérer sur la DA.
 
 ## Blocages / risques
 
@@ -41,7 +36,7 @@
 
 ## Journal
 
-- **2026-08-28 — ox-alpha (opencode)** : Second rework « DA + flux » (demande 2 de l'utilisateur) :
+- **2026-08-28 — ox-alpha (opencode)** : Second rework « DA + flux » **terminé et livré** :
   - **DA claire et lisible** : abandon du thème sombre/violet jugé « dégueulasse » ; thème clair
     (fond blanc/bleu très pâle), textes foncés bien visibles (« Fichiers générés » en accent),
     police système arrondie (`.rounded`), cartes blanches aux coins arrondis.
@@ -50,16 +45,17 @@
   - **Flux modifié** : sélection d'une image/vidéo → **navigation directe vers l'interface
     d'options** avec l'**aperçu de la photo choisie** en haut ; plus besoin d'appuyer sur
     « Options ».
-  - **Carte du monde supprimée** (`FakeMapView.swift` supprimé) — inutile pour l'utilisateur ;
-    on garde la **barre de recherche de villes** et la version iOS (avec option « Auto »).
+  - **Carte du monde supprimée** (`FakeMapView.swift` supprimé) — inutile ; on garde la **barre de
+    recherche de villes** et la version iOS (avec option « Auto »).
   - **Stepper +/- bien visible** : boutons circulaires colorés « − » / « + » avec le compteur au
     centre.
   - **Logo changé encore** : marque pro type objectif (anneau + 7 lames d'ouverture + rond central),
-    sur dégradé indigo→cyan, **sans le « W »** jugé moche ; régénéré pour toutes les tailles par
-    `D:\Temp\opencode\gen_icon.ps1`.
-  - **Caméra virtuelle vérifiée** : `VirtualCamera` est construit **à chaque itération** (donc
-    réglages uniques par fichier généré) — rien à corriger, ça fonctionne déjà.
-  - Pas encore pushé ni buildé au moment de cette entrée.
+    sur dégradé indigo→cyan, **sans le « W »** ; régénéré pour toutes les tailles.
+  - **Caméra virtuelle vérifiée** : `VirtualCamera` construit **à chaque itération** dans les deux
+    moteurs → réglages EXIF uniques par fichier généré (rien à corriger).
+  - **Builds** : premier essai échoué (erreur de type sur le fond du bouton stepper : ternaire
+    `Color` vs `LinearGradient`) → corrigé (`AnyShapeStyle`) ⇒ run `33218103288` **vert** (57 s).
+    IPA 694 614 o uploadé dans la Release `v1.0.0`.
 
 - **2026-08-28 — ox-alpha (opencode)** : Rework important demandé et livré :
   - UX/design refait (écran sombre, cartes de sections, caméra virtuelle, spinner de progression).
