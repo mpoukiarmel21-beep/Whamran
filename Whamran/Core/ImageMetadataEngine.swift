@@ -33,7 +33,8 @@ public final class ImageMetadataEngine {
                                  iosVersion: String,
                                  city: WorldCity?,
                                  outputDir: URL,
-                                 progress: ((Double) -> Void)? = nil) throws -> [GeneratedImage] {
+                                 progress: ((Double) -> Void)? = nil,
+                                 maxDimension: CGFloat? = nil) throws -> [GeneratedImage] {
         guard let src = CGImageSourceCreateWithData(source as CFData, nil) else {
             throw EngineError.invalidSource
         }
@@ -66,7 +67,9 @@ public final class ImageMetadataEngine {
 
             // 4. "Capture" réelle: recadrage très léger + filtre quasi imperceptible + ré-encodage HEIC.
             guard let cg = CGImageSourceCreateImageAtIndex(src, 0, nil) else { throw EngineError.invalidSource }
-            let ci = applySubtleChanges(to: CIImage(cgImage: cg), seed: i)
+            var base = CIImage(cgImage: cg)
+            if let maxDimension = maxDimension { base = resize(base, maxDimension: maxDimension) }
+            let ci = applySubtleChanges(to: base, seed: i)
             let outData = try renderToHEIC(ci: ci, camera: camera, date: date, addr: addr, serial: serial)
 
             let fileName = "whamran_\(sanitize(model))_\(ios)_\(i+1).\(fileExt)"
@@ -90,7 +93,8 @@ public final class ImageMetadataEngine {
                                      iosVersion: String,
                                      city: WorldCity?,
                                      outputDir: URL,
-                                     used: inout Set<String>) throws -> GeneratedImage {
+                                     used: inout Set<String>,
+                                     maxDimension: CGFloat? = nil) throws -> GeneratedImage {
         let minIOS = DeviceDatabase.all.first(where: { $0.name == model })?.minIOS ?? IOSVersionTimeline.minMajor
         let maxIOS = DeviceDatabase.all.first(where: { $0.name == model })?.maxIOS ?? IOSVersionTimeline.maxMajor
 
@@ -108,7 +112,9 @@ public final class ImageMetadataEngine {
         let serial = SerialGenerator.serial()
         let camera = VirtualCamera(model: model, ios: ios)
 
-        let ci = applySubtleChanges(to: CIImage(cgImage: cg), seed: index)
+        var base = CIImage(cgImage: cg)
+        if let maxDimension = maxDimension { base = resize(base, maxDimension: maxDimension) }
+        let ci = applySubtleChanges(to: base, seed: index)
         let outData = try renderToHEIC(ci: ci, camera: camera, date: date, addr: addr, serial: serial)
 
         let fileName = "whamran_\(sanitize(model))_\(ios)_\(index+1).heic"
@@ -194,6 +200,24 @@ public final class ImageMetadataEngine {
         CGImageDestinationAddImage(dest, outCG, props as CFDictionary)
         guard CGImageDestinationFinalize(dest) else { throw EngineError.cannotCreateDestination }
         return outData as Data
+    }
+
+    /// Redimensionne proportionnellement pour que le grand côté ne dépasse pas `maxDimension`.
+    /// Utilisé par le studio vidéo pour produire des photos plus petites (réaliste pour des frames).
+    private static func resize(_ input: CIImage, maxDimension: CGFloat) -> CIImage {
+        let w = input.extent.width
+        let h = input.extent.height
+        guard w > 0, h > 0 else { return input }
+        let maxSide = max(w, h)
+        guard maxSide > maxDimension else { return input }
+        let scale = maxDimension / maxSide
+        if let lanczos = CIFilter(name: "CILanczosScaleTransform") {
+            lanczos.setValue(input, forKey: kCIInputImageKey)
+            lanczos.setValue(scale, forKey: kCIInputScaleKey)
+            lanczos.setValue(1.0, forKey: kCIInputAspectRatioKey)
+            if let o = lanczos.outputImage { return o }
+        }
+        return input
     }
 
     /// Recadrage léger (0-3%) + filtre Core Image quasi imperceptible, différent à chaque image.

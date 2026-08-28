@@ -408,7 +408,8 @@ struct VideoStudioView: View {
                 let img = try extractImage(at: t)
                 let gen = try box.capture { used in
                     try ImageMetadataEngine.generateFrame(cg: img, index: baseIndex, model: model,
-                                                          iosVersion: ios, city: city, outputDir: dir, used: &used)
+                                                          iosVersion: ios, city: city, outputDir: dir, used: &used,
+                                                          maxDimension: 1400)
                 }
                 await MainActor.run {
                     captured.append(gen)
@@ -445,7 +446,8 @@ struct VideoStudioView: View {
                     let img = try extractImage(at: t)
                     let gen = try box.capture { used in
                         try ImageMetadataEngine.generateFrame(cg: img, index: baseIndex + i, model: model,
-                                                              iosVersion: ios, city: city, outputDir: dir, used: &used)
+                                                              iosVersion: ios, city: city, outputDir: dir, used: &used,
+                                                              maxDimension: 1400)
                     }
                     gens.append(gen)
                 }

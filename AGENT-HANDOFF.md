@@ -21,17 +21,17 @@
 
 ## En cours
 
-- **(libre)** — **Rework du mode vidéo livré et build vert** : `VideoStudioView` (voir Journal en
-  haut) — lecteur vidéo plein écran, bouton rond caméra (capture "live photo"), bouton paramètres
-  flottant, mode **extraction auto de N photos**, mêmes simulations ville/modèle/iOS. Build vert
-  `33221144866`, IPA uploadé dans la Release `v1.0.0`.
+- **(libre)** — **Résolution réduite du studio vidéo ajoutée (build à valider)** : mode photo
+  garde la pleine résolution, studio vidéo sort des photos plus petites (grand côté ≤ 1400 px,
+  `maxDimension` via `ImageMetadataEngine`). Pousser `main` puis surveiller la CI ; quand vert,
+  télécharger l'artefact `Whamran-ipa` et re-uploader dans la Release `v1.0.0`.
 
 ## Prochaine étape
 
-- **Rien en attente côté build.** Pour une future itération : pousser `main`, surveiller la CI
-  (`gh run list --workflow build-ipa.yml`) jusqu'au vert, télécharger l'artefact `Whamran-ipa`,
-  vérifier le binaire + les `.strings` FR/EN, puis `gh release upload v1.0.0 Whamran.ipa --clobber`
-  et mettre à jour ce fichier (run ID + taille IPA).
+- Pousser `main`, surveiller la CI (`gh run list --workflow build-ipa.yml`) jusqu'au vert, corriger
+  les éventuelles erreurs de compile, télécharger l'artefact `Whamran-ipa`, vérifier le binaire +
+  les `.strings` FR/EN, puis `gh release upload v1.0.0 Whamran.ipa --clobber`.
+- Mettre à jour ce fichier (run ID + taille IPA) quand le build est vert.
 
 ## Blocages / risques
 
@@ -41,6 +41,19 @@
 - `dist/` (IPA locales) est ignoré par `.gitignore`.
 
 ## Journal
+
+- **2026-08-28 — ox-alpha (opencode)** : **Résolution différente pour le studio vidéo**
+  (demande « rendu résolution différent », option choisie : vidéo plus petit) :
+  - Vérifié que mode photo et studio vidéo utilisent **déjà exactement la même caméra virtuelle**
+    (`VirtualCamera`, `applySubtleChanges`, `renderToHEIC` identiques).
+  - Ajout d'un cap de résolution **uniquement sur le studio vidéo** : nouvelle fonction `resize`
+    (`CILanczosScaleTransform`) dans `ImageMetadataEngine.swift`, paramètre `maxDimension: CGFloat?`
+    sur `generate` et `generateFrame` (défaut `nil` = pas de redimensionnement → le mode photo
+    garde la pleine résolution).
+  - Le studio vidéo passe `maxDimension: 1400` sur les deux chemins (capture live + extraction
+    auto) → les photos de vidéo sortent plus petites (grand côté ≤ 1400 px), réaliste pour des
+    frames ; les dimensions EXIF (`PixelXDimension`) suivent correctement la taille réduite.
+  - Build non encore lancé (à suivre sur prochain run CI), IPA non re-uploadé.
 
 - **2026-08-28 — ox-alpha (opencode)** : **Rework du mode vidéo — Studio vidéo** (demande :
   sélectionner une vidéo, la lire in-app, bouton caméra rond **en bas au centre** pour les
