@@ -14,14 +14,14 @@
 - Repo public `mpoukiarmel21-beep/Whamran` (branch `main`). CI : `.github/workflows/build-ipa.yml`
   (macOS runner, `xcodegen` + `xcodebuild` ad-hoc → IPA → upload artifact ; publication Release
   uniquement sur push de tag).
-- Dernier build réussi : run `33218103288` (commit `ff8cb27`). IPA (694 614 o) ré-uploadé
+- Dernier build réussi : run `33218920610` (commit `0b44b04`). IPA (697 859 o) ré-uploadé
   manuellement dans la Release `v1.0.0` — **lien direct toujours** :
   `https://github.com/mpoukiarmel21-beep/Whamran/releases/download/v1.0.0/Whamran.ipa`
 
 ## En cours
 
-- **(libre)** — Nouveau rework « DA + flux » livré et pushé (voir Journal tout en haut). Build
-  `33218103288` vert, IPA uploaé dans la Release. À valider par l'utilisateur.
+- **(libre)** — Rework « multi-sélection + boutons larges + adresses par image » livré (voir Journal
+  tout en haut). Build `33218920610` vert, IPA publié. À valider par l'utilisateur.
 
 ## Prochaine étape
 
@@ -35,6 +35,31 @@
 - `dist/` (IPA locales) est ignoré par `.gitignore`.
 
 ## Journal
+
+- **2026-08-28 — ox-alpha (opencode)** : Rework « multi-sélection + boutons larges + adresses
+  uniques » **terminé et livré** (demandes 1–4 de la 3e itération) :
+  - **1. Boutons larges en rectangle** : le `WhamranButtonStyle` force maintenant `.frame(maxWidth:
+    .infinity)` **à l'intérieur** du style (la pilule couvre toute la largeur, le texte ne
+    « dépasse » plus du bouton) + police `body` (plus petite que l'ancien `headline`) + padding
+    vertical. DA homogène sur Générer / Enregistrer / Nouvelle session.
+  - **2. Adresses différentes par image dans la même ville** : `LocationProvider.address(forWorld:)`
+    a un jitter GPS **élargi** (±0.045°) donc des points GPS visibles distincts dans la ville ;
+    la carte de résultat affiche désormais **l'adresse de rue complète** (`image.address`) et non
+    plus seulement « Paris, France » — donc chaque image montre une rue/numéro différents, tout en
+    restant dans la ville choisie.
+  - **3. Multi-sélection d'images** : nouveau `MediaMultiPicker` (PHPicker, sélection illimitée) ;
+    on peut choisir N images ; la quantité demandée est **par image** → total = N × quantité
+    (ex : 5 images × 5 = 25). Chaque image source est traitée dans son propre sous-dossier (pas de
+    collision de noms de fichiers). Modèles (même puce), heures, adresses tous différents ; si une
+    ville (Paris) est choisie, tout reste à Paris. La vidéo reste en sélection unique.
+  - **4. Caméra virtuelle vérifiée** : relu les deux moteurs — `VirtualCamera` est instancié **à
+    chaque itération** avec réglages EXIF réalistes (focale, ouverture, vitesse, ISO, objectif),
+    ré-encodage HEIC natif, Software iOS, pas de flag « capture d'écran ». Le fichier est bien une
+    vraie photo prise par la caméra virtuelle, jamais un screenshot.
+  - Nouvelles clés de localisation : `import_image_multi`, `opt_count_per_source`, `opt_total_hint`,
+    `opt_selected` (FR + EN).
+  - **Builds** : run `33218920610` **vert** (47 s) du premier coup (pas d'erreur de compile).
+    IPA 697 859 o uploadé dans la Release `v1.0.0`.
 
 - **2026-08-28 — ox-alpha (opencode)** : Second rework « DA + flux » **terminé et livré** :
   - **DA claire et lisible** : abandon du thème sombre/violet jugé « dégueulasse » ; thème clair
