@@ -31,10 +31,7 @@ struct VideoStudioView: View {
     @State private var errorMsg: String?
     @State private var showError = false
 
-    // Aperçu d'une capture prise
-    @State private var showViewer = false
-    @State private var viewingIndex: Int?
-    @State private var confirmDelete = false
+    // Retour visuel après enregistrement dans Photos
     @State private var savedToast = false
 
     private let captureBox = CaptureBox()
@@ -80,6 +77,7 @@ struct VideoStudioView: View {
             }
         }
         .overlay(busyOverlay)
+        .overlay(savedToastOverlay)
         .alert(L("error"), isPresented: $showError) {
             Button("OK") { }
         } message: {
@@ -87,9 +85,6 @@ struct VideoStudioView: View {
         }
         .sheet(isPresented: $showSettings) {
             settingsSheet
-        }
-        .fullScreenCover(isPresented: $showViewer) {
-            captureViewer
         }
         .onAppear {
             let asset = AVURLAsset(url: sourceURL)
@@ -119,12 +114,35 @@ struct VideoStudioView: View {
                 .contentShape(Capsule())
             }
             Spacer()
-            Text(formatTime(currentTime))
-                .font(.system(.caption, design: .rounded, weight: .bold).monospacedDigit())
-                .foregroundStyle(.white)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background(.ultraThinMaterial, in: Capsule())
+            HStack(spacing: 8) {
+                Text(formatTime(currentTime))
+                    .font(.system(.caption, design: .rounded, weight: .bold).monospacedDigit())
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(.ultraThinMaterial, in: Capsule())
+
+                // Compteur des captures + enregistrer tout
+                if !captured.isEmpty {
+                    Button {
+                        saveAll()
+                    } label: {
+                        HStack(spacing: 5) {
+                            Image(systemName: "arrow.down.circle.fill")
+                                .font(.system(size: 13, weight: .semibold))
+                            Text("\(captured.count)")
+                                .font(.system(.subheadline, design: .rounded, weight: .bold).monospacedDigit())
+                        }
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(.ultraThinMaterial, in: Capsule())
+                        .overlay(Capsule().stroke(Color.white.opacity(0.28), lineWidth: 1))
+                    }
+                    .buttonStyle(.plain)
+                    .contentShape(Capsule())
+                }
+            }
         }
         .padding(.horizontal, 16)
         .padding(.top, 54)
@@ -136,27 +154,34 @@ struct VideoStudioView: View {
             HStack(spacing: 10) {
                 ForEach(Array(captured.enumerated()), id: \.offset) { idx, img in
                     if let ui = UIImage(contentsOfFile: img.url.path) {
-                        Button {
-                            viewingIndex = idx
-                            showViewer = true
-                        } label: {
-                            Image(uiImage: ui)
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 64, height: 64)
-                                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 10).stroke(Color.white.opacity(0.9), lineWidth: 2)
-                                )
-                                .overlay(alignment: .bottomTrailing) {
-                                    Text("\(idx + 1)").font(.system(.caption2, weight: .bold))
+                        Image(uiImage: ui)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 68, height: 68)
+                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10).stroke(Color.white.opacity(0.9), lineWidth: 2)
+                            )
+                            .overlay(alignment: .bottomTrailing) {
+                                Text("\(idx + 1)")
+                                    .font(.system(.caption2, weight: .bold))
+                                    .foregroundStyle(.white)
+                                    .padding(3)
+                                    .background(Color.black.opacity(0.6), in: Circle())
+                                    .padding(3)
+                            }
+                            .overlay(alignment: .topTrailing) {
+                                Button {
+                                    deleteCapture(at: idx)
+                                } label: {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .font(.system(size: 20, weight: .bold))
                                         .foregroundStyle(.white)
-                                        .padding(4)
-                                        .background(Color.black.opacity(0.6), in: Circle())
-                                        .padding(4)
+                                        .background(Color.black.opacity(0.55), in: Circle())
                                 }
-                        }
-                        .buttonStyle(.plain)
+                                .buttonStyle(.plain)
+                                .padding(2)
+                            }
                     }
                 }
             }
@@ -226,27 +251,6 @@ struct VideoStudioView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 16) {
-                    // Modèle
-                    VStack(alignment: .leading, spacing: 10) {
-                        Label(L("opt_camera_title"), systemImage: "camera.fill")
-                            .font(.system(.subheadline, design: .rounded, weight: .bold))
-                        Picker(selection: $selectedModel) {
-                            ForEach(compatible) { m in
-                                Text("\(m.name) · \(m.chip)").tag(m.name)
-                            }
-                        } label: {
-                            Text(L("opt_model"))
-                        }
-                        .pickerStyle(.menu)
-                        if let m = compatible.first(where: { $0.name == selectedModel }) {
-                            Text("\(m.chip) · iOS \(m.minIOS)–\(m.maxIOS)")
-                                .font(.system(.caption, design: .rounded))
-                                .foregroundStyle(Color(red: 0.42, green: 0.46, blue: 0.55))
-                        }
-                    }
-                    .padding(16)
-                    .background(rowCard)
-
                     // Localisation
                     VStack(alignment: .leading, spacing: 10) {
                         Label(L("opt_location_title"), systemImage: "mappin.and.ellipse")
@@ -408,100 +412,27 @@ struct VideoStudioView: View {
                        startPoint: .topLeading, endPoint: .bottomTrailing)
     }
 
-    // MARK: - Aperçu plein écran d'une capture (voir / enregistrer / effacer)
-    private var captureViewer: some View {
-        ZStack {
-            Color.black.ignoresSafeArea()
-            if let index = viewingIndex, captured.indices.contains(index) {
-                let img = captured[index]
-                VStack(spacing: 0) {
-                    HStack {
-                        Button { showViewer = false } label: {
-                            Image(systemName: "xmark")
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundStyle(.white)
-                                .padding(12)
-                                .background(.ultraThinMaterial, in: Circle())
-                        }
-                        .padding(.leading, 16)
-                        Spacer()
-                        Text("\(index + 1) / \(captured.count)")
-                            .font(.system(.subheadline, design: .rounded, weight: .bold))
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .background(.ultraThinMaterial, in: Capsule())
-                        Spacer()
-                        Button { confirmDelete = true } label: {
-                            Image(systemName: "trash")
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundStyle(Color.red.opacity(0.9))
-                                .padding(12)
-                                .background(.ultraThinMaterial, in: Circle())
-                        }
-                        .padding(.trailing, 16)
-                    }
-                    .padding(.top, 10)
-
-                    Spacer()
-
-                    if let ui = UIImage(contentsOfFile: img.url.path) {
-                        Image(uiImage: ui)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .padding(.horizontal, 20)
-                    }
-
-                    Spacer()
-
-                    Button {
-                        PhotoSaver.save(urls: [img.url])
-                        withAnimation { savedToast = true }
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
-                            withAnimation { savedToast = false }
-                        }
-                    } label: {
-                        Label(L("result_save"), systemImage: "arrow.down.circle.fill")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(WhamranButtonStyle(kind: .primary))
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 26)
-                }
-                .overlay(alignment: .bottom) {
-                    if savedToast {
-                        Text(L("vst_saved"))
-                            .font(.system(.subheadline, design: .rounded, weight: .semibold))
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, 18)
-                            .padding(.vertical, 12)
-                            .background(Color.black.opacity(0.75), in: Capsule())
-                            .padding(.bottom, 96)
-                            .transition(.move(edge: .bottom).combined(with: .opacity))
-                    }
-                }
-            }
-        }
-        .alert(L("vst_delete_confirm"), isPresented: $confirmDelete) {
-            Button(L("vst_delete"), role: .destructive) { deleteViewing() }
-            Button(L("opt_cancel"), role: .cancel) { }
-        }
+    // MARK: - Gestion des captures (enregistrer tout / supprimer)
+    /// Enregistre toutes les captures dans Photos.
+    private func saveAll() {
+        guard !captured.isEmpty else { return }
+        PhotoSaver.save(urls: captured.map(\.url))
+        showSavedToast()
     }
 
-    // MARK: - Suppression d'une capture du studio
-    private func deleteViewing() {
-        guard let index = viewingIndex, captured.indices.contains(index) else { return }
+    /// Supprime une capture individuelle (fichier + entrée).
+    private func deleteCapture(at index: Int) {
+        guard captured.indices.contains(index) else { return }
         let target = captured[index]
         try? FileManager.default.removeItem(at: target.url)
         captured.remove(at: index)
-        if captured.isEmpty {
-            viewingIndex = nil
-            showViewer = false
-        } else if index >= captured.count {
-            viewingIndex = captured.count - 1
-        } else {
-            viewingIndex = index
+    }
+
+    /// Affiche brièvement un toast de confirmation d'enregistrement.
+    private func showSavedToast() {
+        withAnimation { savedToast = true }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
+            withAnimation { savedToast = false }
         }
     }
 
@@ -521,6 +452,24 @@ struct VideoStudioView: View {
                 }
             }
         }
+    }
+
+    // MARK: - Toast après enregistrement dans Photos
+    private var savedToastOverlay: some View {
+        Group {
+            if savedToast {
+                Text(L("vst_saved"))
+                    .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 18)
+                    .padding(.vertical, 12)
+                    .background(Color.black.opacity(0.75), in: Capsule())
+                    .padding(.bottom, 30)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+        .allowsHitTesting(false)
+        .transition(.move(edge: .bottom).combined(with: .opacity))
     }
 
     // MARK: - Actions

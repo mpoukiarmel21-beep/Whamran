@@ -177,29 +177,6 @@ struct ContentView: View {
                 VStack(spacing: 16) {
                     previewHeader
 
-                    // Caméra virtuelle
-                    sectionCard(title: L("opt_camera_title"), icon: "camera.fill") {
-                        Picker(selection: $selectedModel) {
-                            ForEach(compatible) { m in
-                                Text("\(m.name) · \(m.chip)").tag(m.name)
-                            }
-                        } label: {
-                            HStack {
-                                Text(L("opt_model")).foregroundStyle(darkText)
-                                Spacer()
-                            }
-                        }
-                        .pickerStyle(.menu)
-                        if let m = compatible.first(where: { $0.name == selectedModel }) {
-                            HStack(spacing: 6) {
-                                Image(systemName: "cpu").foregroundStyle(accent)
-                                Text("\(m.chip) · iOS \(m.minIOS)–\(m.maxIOS)")
-                                    .font(.system(.caption, design: .rounded))
-                                    .foregroundStyle(mutedText)
-                            }
-                        }
-                    }
-
                     // Fake localisation : recherche de villes
                     sectionCard(title: L("opt_location_title"), icon: "mappin.and.ellipse") {
                         HStack(spacing: 10) {
