@@ -14,32 +14,39 @@
 - Repo public `mpoukiarmel21-beep/Whamran` (branch `main`). CI : `.github/workflows/build-ipa.yml`
   (macOS runner, `xcodegen` + `xcodebuild` ad-hoc → IPA → upload artifact ; publication Release
   uniquement sur push de tag).
-- Dernier build réussi : run `33224387723` (commits `32f3799` + `6a278c6`, « Random iPhone
-  model per capture… »). Livré : **modèle d'iPhone choisi au hasard par capture**, bouton
-  Enregistrer-tout déplacé **en bas à droite** (icône ↓ sur le badge compteur), **bouton retour**
-  dans la section Photos (voir Journal). Nouvel IPA (835 336 o) téléchargé, vérifié (binaire +
-  `.strings` FR/EN avec `opt_back`) puis **ré-uploadé** dans la Release `v1.0.0` — **lien direct
-  stable** : `https://github.com/mpoukiarmel21-beep/Whamran/releases/download/v1.0.0/Whamran.ipa`
+- Dernier build réussi : run `33226736196` (commits `074058b` + `3a95ceb`, « Fix device DB
+  decoding (random iPhone model now varies), save button in video settings, saved toast… »).
+  Livré : **correction du tirage aléatoire de modèle d'iPhone** (décodage `deviceDatabase.json`
+  + pool = tous les modèles), **bouton Enregistrer** dans les réglages du studio vidéo, **toast
+  d'enregistrement** dans les options photo. Nouvel IPA (840 319 o) téléchargé, vérifié (binaire +
+  `.strings` FR/EN : `opt_back`, `vst_save`, `result_saved`, `vst_saved`) puis **ré-uploadé** dans
+  la Release `v1.0.0` — **lien direct stable** :
+  `https://github.com/mpoukiarmel21-beep/Whamran/releases/download/v1.0.0/Whamran.ipa`
 
 ## En cours
 
-- **(libre)** — **Modèle d'iPhone aléatoire + boutons du studio remaniés, build vert** :
-  1. Modèle d'iPhone au **hasard par capture** (`randomModelPool: compatible.map(\.name)`) dans
-     les options photo (`ImageMetadataEngine.generate`) ET le studio vidéo (`generateFrame`) → plus
-     de « iPhone 11 » systématique.
-  2. Enregistrer-tout déplacé **en bas à droite** : retiré du `topBar`, désormais sur le badge
-     compteur (icône photo + ↓ + nombre) en bas à droite.
-  3. **Bouton retour** en haut de la section Photos → retour à l'accueil (`newSession`).
-  - Build vert `33224387723`, IPA 835 336 o uploadé dans la Release `v1.0.0`.
+- **(libre)** — **Correction tirage aléatoire du modèle + toasts de sauvegarde, build vert** :
+  1. **Tirage aléatoire réel du modèle d'iPhone** : `DeviceDatabase.load()` décodait un tableau
+     plat alors que `deviceDatabase.json` est enveloppé (`{"devices":[...]}`) → pool vide →
+     repli systématique « iPhone 11 ». Corrigé via `DeviceCatalog { devices }` avec repli flat array.
+     Ajout de `DeviceDatabase.allModelNames` (tous les modèles simulables) ; les 3 appels
+     (`generate` photo, `captureLive`/`extractAuto` vidéo) passent maintenant ce pool, donc le
+     modèle varie par capture.
+  2. **Bouton Enregistrer** dans les réglages vidéo (`toolbar .confirmationAction` `vst_save`).
+  3. **Toast d'enregistrement** photo (`result_saved` « Enregistré »/« Saved », capsule en bas).
+  - Build vert `33226736196`, IPA 840 319 o vérifié + ré-uploadé dans la Release `v1.0.0`.
+  - ⚠️ 1er run `33226643133` échoué : parenthèse excédentaire `))` ligne 606 de `ContentView.swift`
+    → corrigée en `)` (commit `3a95ceb`).
 
 ## Prochaine étape
 
 - **Rien en attente côté build.** Pour une future itération : pousser `main`, surveiller la CI
   (`gh run list --workflow build-ipa.yml`), corriger les erreurs de compile le cas échéant
   (attention : le paramètre `randomModelPool` étant **après** `progress` dans la signature, un
-  appel avec trailing closure échoue — passer `progress:` par label), télécharger l'artefact
-  `Whamran-ipa`, vérifier le binaire + les `.strings` FR/EN, puis
-  `gh release upload v1.0.0 Whamran.ipa --clobber` et mettre à jour ce fichier (run ID + taille).
+  appel avec trailing closure échoue — passer `progress:` par label, et vérifier qu'il n'y a
+  **qu'UNE** parenthèse fermante), télécharger l'artefact `Whamran-ipa`, vérifier le binaire + les
+  `.strings` FR/EN, puis `gh release upload v1.0.0 Whamran.ipa --clobber` et mettre à jour ce
+  fichier (run ID + taille).
 
 ## Blocages / risques
 
@@ -49,6 +56,34 @@
 - `dist/` (IPA locales) est ignoré par `.gitignore`.
 
 ## Journal
+
+- **2026-08-29 — ox-alpha (opencode)** : **Correction du tirage aléatoire du modèle d'iPhone +
+  bouton Enregistrer du studio + toast d'enregistrement photo** (demandes utilisateur :
+  « régler le tirage aléatoire du modèle », « le déplacer en bas à droite », « bouton retour
+  Photos », « toast d'enregistrement dans toutes les options ») :
+  - **Tirage aléatoire du modèle réellement corrigé** : `DeviceDatabase.load()` tentait de décoder
+    `deviceDatabase.json` comme un tableau plat alors qu'il est enveloppé sous `{"devices":[…]}`
+    → `DeviceDatabase.all` était **vide** → chaque capture retombait sur `selectedModel = "iPhone
+    11"`. Corrigé dans `DeviceProfiler.swift` en ajoutant un wrapper `DeviceCatalog { devices:
+    [DeviceModel] }` avec repli sur tableau plat → les 29 modèles chargent.
+  - **Pool = tous les modèles** : `compatibleModels(for:)` (même puce A13, famille iPhone 11)
+    limitait encore le pool ; ajout de `DeviceDatabase.allModelNames: [String]`. Les 3 appels
+    (`ContentView.generate` ligne 606, `VideoStudioView` `captureLive` ligne 492 et `extractAuto`
+    ligne 531) passent maintenant `randomModelPool: DeviceDatabase.allModelNames` → le modèle
+    d'iPhone varie réellement à chaque capture.
+  - **Bouton « Enregistrer » dans les réglages vidéo** : `ToolbarItem(placement:
+    .confirmationAction)` + `Button(L("vst_save")) { showSettings = false }` (clé `vst_save`
+    « Enregistrer »/« Save ») ; Cancel déplacé en `.cancellationAction`.
+  - **Toast d'enregistrement dans les options photo** : `@State savedToast`, `showSavedToast()`
+    (1,6 s), `savedToastOverlay` (capsule `Color.black.opacity(0.75)` en bas, transition
+    `.move(edge: .bottom)`), bouton Enregistrer → `PhotoSaver.save(urls:)` + `showSavedToast()`,
+    `.overlay(savedToastOverlay)` sur `resultView`. Clé `result_saved` « Enregistré »/« Saved ».
+  - **Piège de compile (2)** : 1er run `33226643133` échoué — **parenthèse excédentaire** `))`
+    ligne 606 de `ContentView.swift` (`…allModelNames))`) → « consecutive statements on a line
+    must be separated by ';' ». Corrigé en `)` (commit `3a95ceb`) → run `33226736196` **vert**
+    (43 s).
+  - IPA 840 319 o vérifié (binaire + `.strings` FR/EN : `opt_back`, `vst_save`, `result_saved`,
+    `vst_saved`) et **ré-uploadé** dans la Release `v1.0.0`.
 
 - **2026-08-29 — ox-alpha (opencode)** : **Modèle d'iPhone aléatoire + boutons du studio vidéo
   remaniés** (demandes utilisateur) :
