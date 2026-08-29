@@ -27,6 +27,7 @@
 "proc_title" = "Generating…";
 "result_title" = "Generated files";
 "result_save" = "Save to Photos";
+"result_saved" = "Saved";
 "result_new_session" = "New session";
 "result_model" = "Model";
 "result_ios" = "iOS";
@@ -38,6 +39,7 @@
 "error" = "Oops";
 "lang_title" = "App language";
 "vst_settings" = "Video studio";
+"vst_save" = "Save";
 "vst_auto_title" = "Auto photo extraction";
 "vst_auto_count" = "Photos per video";
 "vst_auto_hint" = "The app extracts N distinct photos spread across the whole video. Each is a real camera capture.";

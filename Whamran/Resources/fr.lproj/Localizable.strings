@@ -27,6 +27,7 @@
 "proc_title" = "Génération en cours…";
 "result_title" = "Fichiers générés";
 "result_save" = "Enregistrer dans Photos";
+"result_saved" = "Enregistré";
 "result_new_session" = "Nouvelle session";
 "result_model" = "Modèle";
 "result_ios" = "iOS";
@@ -38,6 +39,7 @@
 "error" = "Oups";
 "lang_title" = "Langue de l'app";
 "vst_settings" = "Studio vidéo";
+"vst_save" = "Enregistrer";
 "vst_auto_title" = "Extraction automatique de photos";
 "vst_auto_count" = "Photos par vidéo";
 "vst_auto_hint" = "L'app extrait N photos distinctes réparties sur toute la vidéo. Chacune est une vraie capture de caméra.";

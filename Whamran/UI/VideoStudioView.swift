@@ -350,6 +350,9 @@ struct VideoStudioView: View {
             .background(Color(red: 0.96, green: 0.97, blue: 1.0))
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
+                    Button(L("vst_save")) { showSettings = false }
+                }
+                ToolbarItem(placement: .cancellationAction) {
                     Button(L("opt_cancel")) { showSettings = false }
                 }
             }
@@ -486,7 +489,7 @@ struct VideoStudioView: View {
                     try ImageMetadataEngine.generateFrame(cg: img, index: baseIndex, model: model,
                                                           iosVersion: ios, city: city, outputDir: dir, used: &used,
                                                           maxDimension: 1400,
-                                                          randomModelPool: compatible.map(\.name))
+                                                          randomModelPool: DeviceDatabase.allModelNames)
                 }
                 await MainActor.run {
                     captured.append(gen)
@@ -525,7 +528,7 @@ struct VideoStudioView: View {
                         try ImageMetadataEngine.generateFrame(cg: img, index: baseIndex + i, model: model,
                                                               iosVersion: ios, city: city, outputDir: dir, used: &used,
                                                               maxDimension: 1400,
-                                                              randomModelPool: compatible.map(\.name))
+                                                              randomModelPool: DeviceDatabase.allModelNames)
                     }
                     gens.append(gen)
                 }

@@ -13,17 +13,32 @@ public struct DeviceModel: Codable, Identifiable, Hashable {
 public enum DeviceDatabase {
     public static let all: [DeviceModel] = load()
 
+    private struct DeviceCatalog: Decodable {
+        let devices: [DeviceModel]
+    }
+
     private static func load() -> [DeviceModel] {
         guard let url = Bundle.main.url(forResource: "deviceDatabase", withExtension: "json"),
-              let data = try? Data(contentsOf: url),
-              let list = try? JSONDecoder().decode([DeviceModel].self, from: data) else {
+              let data = try? Data(contentsOf: url) else {
             return []
         }
-        return list
+        // Accepte les deux formes: {"devices": [...]} ou tableau plat [...]
+        if let wrapped = try? JSONDecoder().decode(DeviceCatalog.self, from: data) {
+            return wrapped.devices
+        }
+        if let flat = try? JSONDecoder().decode([DeviceModel].self, from: data) {
+            return flat
+        }
+        return []
     }
 
     public static func model(for identifier: String) -> DeviceModel? {
         all.first { $0.identifier == identifier }
+    }
+
+    /// Noms de tous les modèles d'iPhone simulables (pour la sélection aléatoire).
+    public static var allModelNames: [String] {
+        all.map(\.name)
     }
 }
 

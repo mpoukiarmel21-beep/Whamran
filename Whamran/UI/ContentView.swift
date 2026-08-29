@@ -44,6 +44,7 @@ struct ContentView: View {
     @State private var images: [GeneratedImage] = []
     @State private var videos: [GeneratedVideo] = []
     @State private var studioDir: URL?
+    @State private var savedToast = false
 
     private let compatible = DeviceProfiler.compatibleModels(for: DeviceProfiler.currentIdentifier())
 
@@ -414,7 +415,7 @@ struct ContentView: View {
                     }
 
                     VStack(spacing: 10) {
-                        Button(L("result_save")) { PhotoSaver.save(urls: resultURLs) }
+                        Button(L("result_save")) { PhotoSaver.save(urls: resultURLs); showSavedToast() }
                             .buttonStyle(WhamranButtonStyle(kind: .primary))
                             .frame(maxWidth: .infinity)
                         Button(L("result_new_session")) { newSession() }
@@ -426,6 +427,33 @@ struct ContentView: View {
                 }
             }
         }
+        .overlay(savedToastOverlay)
+    }
+
+    // MARK: - Toast après enregistrement dans Photos
+    /// Affiche brièvement un toast de confirmation d'enregistrement.
+    private func showSavedToast() {
+        withAnimation { savedToast = true }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
+            withAnimation { savedToast = false }
+        }
+    }
+
+    private var savedToastOverlay: some View {
+        Group {
+            if savedToast {
+                Text(L("result_saved"))
+                    .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 18)
+                    .padding(.vertical, 12)
+                    .background(Color.black.opacity(0.75), in: Capsule())
+                    .padding(.bottom, 30)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+        .allowsHitTesting(false)
+        .transition(.move(edge: .bottom).combined(with: .opacity))
     }
 
     // MARK: - Composants visuels
@@ -575,7 +603,7 @@ struct ContentView: View {
                                 let fraction = (Double(completed) + Double(count) * p) / Double(totalOutputs)
                                 Task { @MainActor in progress = fraction }
                             },
-                            randomModelPool: compatible.map(\.name))
+                            randomModelPool: DeviceDatabase.allModelNames))
                         completed += count
                         all.append(contentsOf: res)
                     }
