@@ -14,29 +14,29 @@
 - Repo public `mpoukiarmel21-beep/Whamran` (branch `main`). CI : `.github/workflows/build-ipa.yml`
   (macOS runner, `xcodegen` + `xcodebuild` ad-hoc → IPA → upload artifact ; publication Release
   uniquement sur push de tag).
-- Dernier build livré : run `33221945110` — **studio vidéo avec résolution réduite** (voir plus bas).
-- **Nouvelle itération en préparation (non commitée)** : gestion complète des photos du studio vidéo
-  (voir Journal). Ce bloc « État »/« En cours » sera mis à jour à la fin du build.
+- Dernier build réussi : run `33222955204` (commit `5fddf97`, « Video studio: photo viewer… »).
+  **Gestion complète des photos du studio vidéo + correctifs UX livrés** (voir Journal). Nouvel
+  IPA (846 895 o) téléchargé, vérifié (binaire + `.strings` FR/EN : « Appareil »/« Device » +
+  clés `vst_delete*`, `vst_saved`, `vst_save_error`) puis **ré-uploadé** dans la Release
+  `v1.0.0` — **lien direct stable** :
+  `https://github.com/mpoukiarmel21-beep/Whamran/releases/download/v1.0.0/Whamran.ipa`
 
 ## En cours
 
-- **(libre)** — **Gestion des photos du studio vidéo + petits correctifs (build à valider)** :
-  1. Libellé « Caméra virtuelle » → « Appareil » (FR) / « Device » (EN) — dans les options photo
-     ET vidéo (même clé `opt_camera_title`).
+- **(libre)** — **Gestion des photos du studio vidéo + correctifs UX livrés et build vert** :
+  1. Libellé « Caméra virtuelle » → « Appareil » (FR) / « Device » (EN) — options photo ET vidéo.
   2. Miniatures du studio cliquables → **aperçu plein écran** avec **Enregistrer dans Photos** +
-     **Effacer** (confirmation), en plus de la gestion live/auto existante.
-  3. Section « Version iOS » du studio **redesignée en chips** (même DA) au lieu du Picker `.menu`
-     carré.
-  4. Bouton retour/annuler du studio rendu **accessible** (plus grand, chevron retour, décalé de
-     ~54 pt du haut pour dégager l'encoche/Dynamic Island).
-  - Nouveaux `.strings` FR/EN : `vst_delete`, `vst_delete_confirm`, `vst_saved`, `vst_save_error`.
+     **Effacer** (confirmation).
+  3. Section « Version iOS » du studio redesignée en chips (même DA).
+  4. Bouton retour/annuler rendu accessible (plus grand, chevron, décalé ~54 pt).
+  - Build vert `33222955204`, IPA 846 895 o uploadé dans la Release `v1.0.0`.
 
 ## Prochaine étape
 
-- Pousser `main`, surveiller la CI (`gh run list --workflow build-ipa.yml`) jusqu'au vert, corriger
-  les éventuelles erreurs de compile, télécharger l'artefact `Whamran-ipa`, vérifier le binaire +
-  les `.strings` FR/EN, puis `gh release upload v1.0.0 Whamran.ipa --clobber`.
-- Mettre à jour ce fichier (run ID + taille IPA) quand le build est vert.
+- **Rien en attente côté build.** Pour une future itération : pousser `main`, surveiller la CI
+  (`gh run list --workflow build-ipa.yml`), corriger les erreurs de compile le cas échéant,
+  télécharger l'artefact `Whamran-ipa`, vérifier le binaire + les `.strings` FR/EN, puis
+  `gh release upload v1.0.0 Whamran.ipa --clobber` et mettre à jour ce fichier (run ID + taille).
 
 ## Blocages / risques
 
@@ -66,7 +66,9 @@
     (chevron + « Annuler »), plus grand (padding 20×15), et la barre du haut est décalée de
     `~54 pt` du haut pour dégager l'encoche/Dynamic Island (le studio est `.ignoresSafeArea()`).
   - Nouveaux `.strings` FR/EN : `vst_delete`, `vst_delete_confirm`, `vst_saved`, `vst_save_error`.
-  - Build : en attente du prochain run CI (commit à pousser).
+  - Build vert `33222955204`, IPA 846 895 o vérifié (binaire + strings FR/EN) et **ré-uploadé**
+    dans la Release `v1.0.0`. Note : `vst_save_error` est défini mais pas encore référencé en code
+    (prévu pour un futur toast d'échec d'enregistrement).
 
 - **2026-08-28 — ox-alpha (opencode)** : **Résolution différente pour le studio vidéo**
   (demande « rendu résolution différent », option choisie : vidéo plus petit) :
