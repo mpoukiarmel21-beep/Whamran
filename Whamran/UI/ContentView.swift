@@ -119,7 +119,7 @@ struct ContentView: View {
                 // Sélecteur de langue (traduction de toute l'app en temps réel)
                 VStack(spacing: 10) {
                     Text(L("lang_title"))
-                        .font(.system(.caption, design: .rounded)).fontWeight(.semibold)
+                        .font(.system(.caption, design: .rounded).weight(.semibold))
                         .foregroundStyle(mutedText)
                     Picker("", selection: $langRaw) {
                         ForEach(AppLanguage.allCases) { lang in
@@ -185,7 +185,7 @@ struct ContentView: View {
                                 Image(systemName: "chevron.left")
                                     .font(.system(size: 15, weight: .semibold))
                                 Text(L("opt_back"))
-                                    .font(.system(.subheadline, design: .rounded)).fontWeight(.bold)
+                                    .font(.system(.subheadline, design: .rounded).weight(.bold))
                             }
                             .foregroundStyle(darkText)
                             .padding(.horizontal, 14)
@@ -233,7 +233,7 @@ struct ContentView: View {
                                     } label: {
                                         HStack {
                                             Image(systemName: "mappin").font(.caption).foregroundStyle(accent)
-                                            Text(c.name).font(.system(.subheadline, design: .rounded)).fontWeight(.semibold)
+                                            Text(c.name).font(.system(.subheadline, design: .rounded).weight(.semibold))
                                                 .foregroundStyle(darkText).lineLimit(1)
                                             Text(c.country).font(.system(.caption, design: .rounded))
                                                 .foregroundStyle(mutedText)
@@ -252,11 +252,11 @@ struct ContentView: View {
                             if let city = selectedCity {
                                 Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
                                 Text(city.display)
-                                    .font(.system(.subheadline, design: .rounded)).fontWeight(.semibold)
+                                    .font(.system(.subheadline, design: .rounded).weight(.semibold))
                                     .foregroundStyle(darkText)
                                 Spacer()
                                 Button(L("opt_random")) { selectedCity = nil; searchText = "" }
-                                    .font(.system(.caption, design: .rounded)).fontWeight(.semibold)
+                                    .font(.system(.caption, design: .rounded).weight(.semibold))
                                     .foregroundStyle(accent)
                             } else {
                                 Image(systemName: "globe.europe.africa.fill").foregroundStyle(accent)
@@ -294,13 +294,13 @@ struct ContentView: View {
                     sectionCard(title: L("opt_count"), icon: "photo.stack") {
                         HStack {
                             Text(L("opt_count_per_source"))
-                                .font(.system(.subheadline, design: .rounded)).fontWeight(.semibold)
+                                .font(.system(.subheadline, design: .rounded).weight(.semibold))
                                 .foregroundStyle(darkText)
                             Spacer()
                             HStack(spacing: 12) {
                                 stepperButton("-", disabled: count <= 1) { if count > 1 { count -= 1 } }
                                 Text("\(count)")
-                                    .font(.system(.title3, design: .rounded)).fontWeight(.bold)
+                                    .font(.system(.title3, design: .rounded).weight(.bold))
                                     .foregroundStyle(darkText)
                                     .frame(minWidth: 36)
                                 stepperButton("+", disabled: count >= 50) { if count < 50 { count += 1 } }
@@ -443,7 +443,7 @@ struct ContentView: View {
         Group {
             if savedToast {
                 Text(L("result_saved"))
-                    .font(.system(.subheadline, design: .rounded)).fontWeight(.semibold)
+                    .font(.system(.subheadline, design: .rounded).weight(.semibold))
                     .foregroundStyle(.white)
                     .padding(.horizontal, 18)
                     .padding(.vertical, 12)
@@ -462,7 +462,7 @@ struct ContentView: View {
             return AnyView(
                 VStack(alignment: .leading, spacing: 8) {
                     Text(AppLang.formatted("opt_selected", datas.count))
-                        .font(.system(.subheadline, design: .rounded)).fontWeight(.semibold)
+                        .font(.system(.subheadline, design: .rounded).weight(.semibold))
                         .foregroundStyle(mutedText)
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 10) {
@@ -498,7 +498,7 @@ struct ContentView: View {
                         )
                     VStack(alignment: .leading, spacing: 2) {
                         Text(L("import_video"))
-                            .font(.system(.caption, design: .rounded)).fontWeight(.bold)
+                            .font(.system(.caption, design: .rounded).weight(.bold))
                             .foregroundStyle(.white)
                     }
                     .padding(10)
@@ -539,7 +539,7 @@ struct ContentView: View {
                                             @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 14) {
             Label(title, systemImage: icon)
-                .font(.system(.subheadline, design: .rounded)).fontWeight(.bold)
+                .font(.system(.subheadline, design: .rounded).weight(.bold))
                 .foregroundStyle(darkText)
             content()
         }
@@ -635,7 +635,7 @@ struct WhamranButtonStyle: ButtonStyle {
     var kind: ButtonKind
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.system(.body, design: .rounded)).fontWeight(.semibold)
+            .font(.system(.body, design: .rounded).weight(.semibold))
             .foregroundStyle(kind == .primary ? AnyShapeStyle(Color.white) : AnyShapeStyle(Color(red: 0.24, green: 0.30, blue: 0.90)))
             .padding(.vertical, 16)
             .frame(maxWidth: .infinity) // bouton rectangle pleine largeur, DA homogène
@@ -676,7 +676,7 @@ private struct ResultCard: View {
             }
             VStack(alignment: .leading, spacing: 5) {
                 Text("\(L("result_model")) : \(image.model)")
-                    .font(.system(.subheadline, design: .rounded)).fontWeight(.bold)
+                    .font(.system(.subheadline, design: .rounded).weight(.bold))
                     .foregroundStyle(Color(red: 0.10, green: 0.11, blue: 0.16))
                 metaRow(icon: "apple.logo", text: IOSVersionTimeline.subtitle(image.iosVersion))
                 metaRow(icon: "calendar", text: fmt(image.captureDate))
@@ -714,7 +714,7 @@ private struct VideoResultCard: View {
                 )
             VStack(alignment: .leading, spacing: 5) {
                 Text("\(L("result_model")) : \(video.model)")
-                    .font(.system(.subheadline, design: .rounded)).fontWeight(.bold)
+                    .font(.system(.subheadline, design: .rounded).weight(.bold))
                     .foregroundStyle(Color(red: 0.10, green: 0.11, blue: 0.16))
                 metaRow(icon: "apple.logo", text: IOSVersionTimeline.subtitle(video.iosVersion))
                 metaRow(icon: "calendar", text: fmt(video.captureDate))
