@@ -54,7 +54,7 @@ struct ContentView: View {
     }
 
     var body: some View {
-        NavigationStack {
+        NavigationView {
             Group {
                 switch screen {
                 case .pick: pickView

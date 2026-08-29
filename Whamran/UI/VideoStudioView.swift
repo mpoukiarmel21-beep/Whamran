@@ -236,7 +236,7 @@ struct VideoStudioView: View {
 
     // MARK: - Feuille de paramètres
     private var settingsSheet: some View {
-        NavigationStack {
+        NavigationView {
             ScrollView {
                 VStack(spacing: 16) {
                     // Localisation
@@ -358,7 +358,9 @@ struct VideoStudioView: View {
             }
             .navigationTitle(L("vst_settings"))
         }
-        .presentationDetents([.medium, .large])
+        if #available(iOS 16.0, *) {
+            .presentationDetents([.medium, .large])
+        }
     }
 
     private var rowCard: some ShapeStyle {

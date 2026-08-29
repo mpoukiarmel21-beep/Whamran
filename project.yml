@@ -2,7 +2,7 @@ name: Whamran
 options:
   bundleIdPrefix: com.whamran
   deploymentTarget:
-    iOS: "16.0"
+    iOS: "15.0"
 packages: {}
 settings:
   base:
