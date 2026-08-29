@@ -104,7 +104,7 @@ struct VideoStudioView: View {
                     Image(systemName: "chevron.left")
                         .font(.system(size: 17, weight: .semibold))
                     Text(L("opt_cancel"))
-                        .font(.system(.subheadline, design: .rounded, weight: .bold))
+                        .font(.system(.subheadline, design: .rounded)).fontWeight(.bold)
                 }
                 .foregroundStyle(.white)
                 .padding(.horizontal, 20)
@@ -115,7 +115,7 @@ struct VideoStudioView: View {
             }
             Spacer()
             Text(formatTime(currentTime))
-                .font(.system(.caption, design: .rounded, weight: .bold).monospacedDigit())
+                .font(.system(.caption, design: .rounded).monospacedDigit()).fontWeight(.bold)
                 .foregroundStyle(.white)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 6)
@@ -141,7 +141,7 @@ struct VideoStudioView: View {
                             )
                             .overlay(alignment: .bottomTrailing) {
                                 Text("\(idx + 1)")
-                                    .font(.system(.caption2, weight: .bold))
+                                    .font(.system(.caption2)).fontWeight(.bold)
                                     .foregroundStyle(.white)
                                     .padding(3)
                                     .background(Color.black.opacity(0.6), in: Circle())
@@ -222,7 +222,7 @@ struct VideoStudioView: View {
                     .font(.system(size: 13, weight: .semibold))
                 Text("\(captured.count)")
             }
-            .font(.system(.subheadline, design: .rounded, weight: .bold).monospacedDigit())
+            .font(.system(.subheadline, design: .rounded).monospacedDigit()).fontWeight(.bold)
             .foregroundStyle(.white)
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
@@ -242,7 +242,7 @@ struct VideoStudioView: View {
                     // Localisation
                     VStack(alignment: .leading, spacing: 10) {
                         Label(L("opt_location_title"), systemImage: "mappin.and.ellipse")
-                            .font(.system(.subheadline, design: .rounded, weight: .bold))
+                            .font(.system(.subheadline, design: .rounded)).fontWeight(.bold)
                         HStack(spacing: 10) {
                             Image(systemName: "magnifyingglass")
                                 .foregroundStyle(Color(red: 0.42, green: 0.46, blue: 0.55))
@@ -266,7 +266,7 @@ struct VideoStudioView: View {
                                 } label: {
                                     HStack {
                                         Image(systemName: "mappin").font(.caption)
-                                        Text(c.name).font(.system(.subheadline, design: .rounded, weight: .semibold))
+                                        Text(c.name).font(.system(.subheadline, design: .rounded)).fontWeight(.semibold)
                                         Text(c.country).font(.system(.caption, design: .rounded))
                                             .foregroundStyle(Color(red: 0.42, green: 0.46, blue: 0.55))
                                         Spacer()
@@ -281,10 +281,10 @@ struct VideoStudioView: View {
                         HStack(spacing: 8) {
                             if let city = selectedCity {
                                 Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
-                                Text(city.display).font(.system(.subheadline, design: .rounded, weight: .semibold))
+                                Text(city.display).font(.system(.subheadline, design: .rounded)).fontWeight(.semibold)
                                 Spacer()
                                 Button(L("opt_random")) { selectedCity = nil; searchText = "" }
-                                    .font(.system(.caption, design: .rounded, weight: .semibold))
+                                    .font(.system(.caption, design: .rounded)).fontWeight(.semibold)
                             } else {
                                 Image(systemName: "globe.europe.africa.fill")
                                 Text(L("opt_location_random")).font(.system(.caption, design: .rounded))
@@ -299,7 +299,7 @@ struct VideoStudioView: View {
                     // Version iOS (chips horizontales, même DA)
                     VStack(alignment: .leading, spacing: 10) {
                         Label(L("opt_ios"), systemImage: "apple.logo")
-                            .font(.system(.subheadline, design: .rounded, weight: .bold))
+                            .font(.system(.subheadline, design: .rounded)).fontWeight(.bold)
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 8) {
                                 versionChip(label: L("opt_ios_auto"), tag: "auto")
@@ -316,15 +316,15 @@ struct VideoStudioView: View {
                     // Extraction automatique de N photos
                     VStack(alignment: .leading, spacing: 12) {
                         Label(L("vst_auto_title"), systemImage: "sparkles")
-                            .font(.system(.subheadline, design: .rounded, weight: .bold))
+                            .font(.system(.subheadline, design: .rounded)).fontWeight(.bold)
                         HStack {
                             Text(L("vst_auto_count"))
-                                .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                                .font(.system(.subheadline, design: .rounded)).fontWeight(.semibold)
                             Spacer()
                             HStack(spacing: 12) {
                                 stepperButton("-", disabled: extractCount <= 1) { if extractCount > 1 { extractCount -= 1 } }
                                 Text("\(extractCount)")
-                                    .font(.system(.title3, design: .rounded, weight: .bold))
+                                    .font(.system(.title3, design: .rounded)).fontWeight(.bold)
                                     .frame(minWidth: 32)
                                 stepperButton("+", disabled: extractCount >= 50) { if extractCount < 50 { extractCount += 1 } }
                             }
@@ -358,8 +358,16 @@ struct VideoStudioView: View {
             }
             .navigationTitle(L("vst_settings"))
         }
-        if #available(iOS 16.0, *) {
-            .presentationDetents([.medium, .large])
+        .modifier(SheetDetents())
+    }
+
+    private struct SheetDetents: ViewModifier {
+        @ViewBuilder func body(content: Content) -> some View {
+            if #available(iOS 16.0, *) {
+                content.presentationDetents([.medium, .large])
+            } else {
+                content
+            }
         }
     }
 
@@ -386,7 +394,7 @@ struct VideoStudioView: View {
             iosChoice = tag
         } label: {
             Text(label)
-                .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                .font(.system(.subheadline, design: .rounded)).fontWeight(.semibold)
                 .lineLimit(1)
                 .foregroundStyle(isSelected ? AnyShapeStyle(Color.white)
                                             : AnyShapeStyle(Color(red: 0.10, green: 0.11, blue: 0.16)))
@@ -452,7 +460,7 @@ struct VideoStudioView: View {
         Group {
             if savedToast {
                 Text(L("vst_saved"))
-                    .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                    .font(.system(.subheadline, design: .rounded)).fontWeight(.semibold)
                     .foregroundStyle(.white)
                     .padding(.horizontal, 18)
                     .padding(.vertical, 12)
