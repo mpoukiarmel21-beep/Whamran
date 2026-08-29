@@ -603,7 +603,7 @@ struct ContentView: View {
                                 let fraction = (Double(completed) + Double(count) * p) / Double(totalOutputs)
                                 Task { @MainActor in progress = fraction }
                             },
-                            randomModelPool: DeviceDatabase.allModelNames))
+                            randomModelPool: DeviceDatabase.allModelNames)
                         completed += count
                         all.append(contentsOf: res)
                     }
