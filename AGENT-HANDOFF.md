@@ -14,31 +14,27 @@
 - Repo public `mpoukiarmel21-beep/Whamran` (branch `main`). CI : `.github/workflows/build-ipa.yml`
   (macOS runner, `xcodegen` + `xcodebuild` ad-hoc → IPA → upload artifact ; publication Release
   uniquement sur push de tag).
-- Dernier build livré : run `33222955204` (commit `5fddf97`) — **photo viewer du studio vidéo**
-  (voir plus bas).
-- **Nouvelle itération en préparation (non commitée)** : ajustements du studio vidéo demandés par
-  l'utilisateur (voir Journal) — ce bloc « État »/« En cours » sera mis à jour à la fin du build.
+- Dernier build réussi : run `33223634438` (commit `d6f219d`, « Video studio: hide Device section… »).
+  **Ajustements studio vidéo + correction écran noir livrés** (voir Journal). Nouvel IPA
+  (827 794 o) téléchargé, vérifié (binaire + `.strings` FR/EN) puis **ré-uploadé** dans la Release
+  `v1.0.0` — **lien direct stable** :
+  `https://github.com/mpoukiarmel21-beep/Whamran/releases/download/v1.0.0/Whamran.ipa`
 
 ## En cours
 
-- **(libre)** — **Nouvelle itération studio vidéo (build à valider)** :
-  1. **Section « Appareil » cachée dans les DEUX options** : suppression du bloc « Caméra virtuelle »/
-     « Appareil » (choix du modèle) dans l'écran d'options photo (ContentView) ET dans les réglages
-     du studio vidéo. Le modèle reste celui par défaut (choisi à la détection du device).
-  2. **Correction de l'écran noir + freeze** : l'aperçu plein écran (`fullScreenCover captureViewer`)
-     qui affichait un écran noir et bloquait l'app a été **entièrement retiré**.
-  3. **Enregistrer tout (groupe)** : badge en haut à droite (icône téléchargement + nombre de photos)
-     qui enregistre **toutes** les captures dans Photos (`PhotoSaver.save(urls: captured.map(\.url))`)
-     + toast de confirmation.
-  4. **Supprimer une photo** : petite **croix ❌** (`xmark.circle.fill`) dans le coin haut-droit de
-     **chaque miniature** qui supprime cette capture (fichier + entrée) immédiatement.
+- **(libre)** — **Ajustements studio vidéo livrés et build vert** :
+  1. Section « Appareil » cachée dans les options photo ET les réglages du studio vidéo.
+  2. Écran noir + freeze corrigé (aperçu plein écran retiré).
+  3. Enregistrer tout : badge « ↓ + nombre » en haut à droite → sauvegarde toutes les captures.
+  4. Suppression par miniature : ❌ en coin de chaque miniature.
+  - Build vert `33223634438`, IPA 827 794 o uploadé dans la Release `v1.0.0`.
 
 ## Prochaine étape
 
-- Pousser `main`, surveiller la CI (`gh run list --workflow build-ipa.yml`) jusqu'au vert, corriger
-  les éventuelles erreurs de compile, télécharger l'artefact `Whamran-ipa`, vérifier le binaire +
-  les `.strings` FR/EN, puis `gh release upload v1.0.0 Whamran.ipa --clobber`.
-- Mettre à jour ce fichier (run ID + taille IPA) quand le build est vert.
+- **Rien en attente côté build.** Pour une future itération : pousser `main`, surveiller la CI
+  (`gh run list --workflow build-ipa.yml`), corriger les erreurs de compile le cas échéant,
+  télécharger l'artefact `Whamran-ipa`, vérifier le binaire + les `.strings` FR/EN, puis
+  `gh release upload v1.0.0 Whamran.ipa --clobber` et mettre à jour ce fichier (run ID + taille).
 
 ## Blocages / risques
 
@@ -61,7 +57,8 @@
     toast `vst_saved` (`savedToastOverlay`, en bas d'écran).
   - **Suppression par miniature** : `❌ xmark.circle.fill` en coin haut-droit de chaque miniature →
     `deleteCapture(at:)` (supprime fichier + entrée), suppression immédiate sans confirmation.
-  - Build : en attente du prochain run CI (commit à pousser).
+  - Build vert `33223634438`, IPA 827 794 o vérifié (binaire + strings FR/EN) et **ré-uploadé**
+    dans la Release `v1.0.0`.
 
 - **2026-08-28 — ox-alpha (opencode)** : **Gestion complète des photos du studio vidéo + petits
   correctifs UX** (demandes utilisateur) :
