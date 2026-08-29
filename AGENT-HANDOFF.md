@@ -14,39 +14,46 @@
 - Repo public `mpoukiarmel21-beep/Whamran` (branch `main`). CI : `.github/workflows/build-ipa.yml`
   (macOS runner, `xcodegen` + `xcodebuild` ad-hoc → IPA → upload artifact ; publication Release
   uniquement sur push de tag).
-- Dernier build réussi : run `33226736196` (commits `074058b` + `3a95ceb`, « Fix device DB
-  decoding (random iPhone model now varies), save button in video settings, saved toast… »).
-  Livré : **correction du tirage aléatoire de modèle d'iPhone** (décodage `deviceDatabase.json`
-  + pool = tous les modèles), **bouton Enregistrer** dans les réglages du studio vidéo, **toast
-  d'enregistrement** dans les options photo. Nouvel IPA (840 319 o) téléchargé, vérifié (binaire +
-  `.strings` FR/EN : `opt_back`, `vst_save`, `result_saved`, `vst_saved`) puis **ré-uploadé** dans
-  la Release `v1.0.0` — **lien direct stable** :
+- **Cible de déploiement abaissée iOS 16.0 → 15.0** (complété) pour que l'app s'installe sur un
+  appareil sous **iOS 15.8.8** (l'erreur d'installation était `DeviceOSVersion TooLow … have
+  15.8.8; need 16.0`).
+- Dernier build réussi : run `33227743661` (commits `b8bf265` + `e6c9a98` + `c10d1fe`),
+  **cœur du handle iOS 15**. L'IPA **856 241 o** a été vérifié (binaire + `.strings` FR/EN :
+  `opt_back`, `vst_save`, `result_saved`, `vst_saved`) puis **ré-uploadé** dans la Release
+  `v1.0.0` — **lien direct stable** :
   `https://github.com/mpoukiarmel21-beep/Whamran/releases/download/v1.0.0/Whamran.ipa`
 
 ## En cours
 
-- **(libre)** — **Correction tirage aléatoire du modèle + toasts de sauvegarde, build vert** :
-  1. **Tirage aléatoire réel du modèle d'iPhone** : `DeviceDatabase.load()` décodait un tableau
-     plat alors que `deviceDatabase.json` est enveloppé (`{"devices":[...]}`) → pool vide →
-     repli systématique « iPhone 11 ». Corrigé via `DeviceCatalog { devices }` avec repli flat array.
-     Ajout de `DeviceDatabase.allModelNames` (tous les modèles simulables) ; les 3 appels
-     (`generate` photo, `captureLive`/`extractAuto` vidéo) passent maintenant ce pool, donc le
-     modèle varie par capture.
-  2. **Bouton Enregistrer** dans les réglages vidéo (`toolbar .confirmationAction` `vst_save`).
-  3. **Toast d'enregistrement** photo (`result_saved` « Enregistré »/« Saved », capsule en bas).
-  - Build vert `33226736196`, IPA 840 319 o vérifié + ré-uploadé dans la Release `v1.0.0`.
-  - ⚠️ 1er run `33226643133` échoué : parenthèse excédentaire `))` ligne 606 de `ContentView.swift`
-    → corrigée en `)` (commit `3a95ceb`).
+- **(libre)** — **Compatibilité iOS 15 terminée, build vert, IPA ré-uploadé** :
+  1. `project.yml` : `deploymentTarget iOS: "15.0"` (commit `b8bf265`).
+  2. `NavigationStack` → `NavigationView` (ContentView ligne 57, VideoStudioView ligne 239) —
+     `NavigationStack` est iOS 16+.
+  3. `.presentationDetents([.medium, .large])` (iOS 16+) : l'ancien `if #available` en fin de
+     `settingsSheet` cassait le view builder (« opaque return type, but has no return
+     statements ») → remplacé par un `ViewModifier` `SheetDetents` (iOS 16 → detents, sinon contenu
+     simple) appliqué via `.modifier(SheetDetents())` (VideoStudioView).
+  4. **Polices iOS 16+ remplacées** — deux passes sur `ContentView.swift` + `VideoStudioView.swift` :
+     - `.font(.system(STYLE, design: .rounded, weight: W))` (iOS 16+) → d'abord
+       `.font(.system(STYLE, design: .rounded)).fontWeight(W)`, mais **`View.fontWeight(_:)` est
+       aussi iOS 16+** (run `33227620490` échoué) → finalement la graisse est pliée **dans la
+       `Font`** : `.font(.system(STYLE, design: .rounded).weight(W))` (`Font.weight(_:)` est iOS 13+).
+       Le cas `.system(STYLE, weight: W)` (sans design, ex. `.caption2`) → `.font(.system(STYLE).weight(W))`.
+       Les cas `.system(...).monospacedDigit()` → `.font(.system(STYLE, design: .rounded).monospacedDigit().weight(W))`.
+       Les formes `.system(size:weight:design:)` étaient déjà iOS 13+ et sont restées inchangées.
+  5. Récap des runs : `33227390292` échoué (`system(_:design:weight:)` iOS16) ;
+     `33227620490` échoué (`View.fontWeight` iOS16) ; `33227743661` **vert** (56 s).
 
 ## Prochaine étape
 
-- **Rien en attente côté build.** Pour une future itération : pousser `main`, surveiller la CI
-  (`gh run list --workflow build-ipa.yml`), corriger les erreurs de compile le cas échéant
-  (attention : le paramètre `randomModelPool` étant **après** `progress` dans la signature, un
-  appel avec trailing closure échoue — passer `progress:` par label, et vérifier qu'il n'y a
-  **qu'UNE** parenthèse fermante), télécharger l'artefact `Whamran-ipa`, vérifier le binaire + les
-  `.strings` FR/EN, puis `gh release upload v1.0.0 Whamran.ipa --clobber` et mettre à jour ce
-  fichier (run ID + taille).
+- **Rien en attente côté build.** L'IPA 856 241 o est déjà dans la Release `v1.0.0`.
+  Pour une future itération : pousser `main`, surveiller la CI (`gh run list --workflow
+  build-ipa.yml`), corriger les erreurs de compile le cas échéant (attention : toute API iOS 16+
+  doit être évitée — la cible est désormais iOS 15.0 ; les polices doivent passer par
+  `Font.system(...).weight(...)`, la navigation par `NavigationView`, les detents par
+  `#available`), télécharger l'artefact `Whamran-ipa`, vérifier le binaire + les `.strings`
+  FR/EN, puis `gh release upload v1.0.0 Whamran.ipa --clobber` et mettre à jour ce fichier
+  (run ID + taille).
 
 ## Blocages / risques
 
@@ -56,6 +63,34 @@
 - `dist/` (IPA locales) est ignoré par `.gitignore`.
 
 ## Journal
+
+- **2026-08-29 — ox-alpha (opencode)** : **Compatibilité iOS 15 terminée — l'app s'installe sur
+  iOS 15.8.8** (demande : « l'app doit s'installer sur un appareil iOS 15.8.8 » ; l'ancienne cible
+  16.0 donnait `DeviceOSVersion TooLow … have 15.8.8; need 16.0`) :
+  - `project.yml` : `deploymentTarget iOS: "15.0"` (commit `b8bf265`).
+  - **Navigation** : `NavigationStack` (iOS 16+) → `NavigationView` dans `ContentView` (ligne 57) et
+    `VideoStudioView` (ligne 239).
+  - **Detents de la feuille de réglages** : le `if #available(iOS 16.0, *) { .presentationDetents }`
+    en fin de `settingsSheet` cassait le view builder (« function declares an opaque return type,
+    but has no return statements ») → remplacé par un `ViewModifier` **`SheetDetents`** appliqué via
+    `.modifier(SheetDetents())` (iOS 16 → `.presentationDetents([.medium, .large])`, sinon contenu
+    simple).
+  - **Polices** : deux passes pour lever tous les `system(_:design:weight:)`/`fontWeight` iOS 16+ :
+    - Pass 1 (run `33227390292` échoué) : `.font(.system(STYLE, design: .rounded, weight: W))`
+      (iOS 16+) → `.font(.system(STYLE, design: .rounded)).fontWeight(W)`.
+    - Pass 2 (run `33227620490` échoué) : `View.fontWeight(_:)` est lui-aussi iOS 16+ → la graisse
+      est finalement pliée **dans la Font** : `.font(.system(STYLE, design: .rounded).weight(W))`
+      (`Font.weight(_:)` iOS 13+). Cas sans design (`.caption2`) →
+      `.font(.system(STYLE).weight(W))` ; cas `.monospacedDigit()`
+      (`.font(.system(...).monospacedDigit()).fontWeight(...)`) →
+      `.font(.system(...).monospacedDigit().weight(W))`. Les formes `.system(size:weight:design:)`
+      déjà iOS 13+ restent inchangées.
+  - Build vert **`33227743661`** (56 s, commits `b8bf265`+`e6c9a98`+`c10d1fe`), IPA **856 241 o**
+    vérifié (binaire 2 003 184 o + `.strings` FR/EN compilés contenant `opt_back`, `vst_save`,
+    `result_saved`, `vst_saved`) et **ré-uploadé** dans la Release `v1.0.0`.
+  - ⚠️ **Leçon encodage** : ne jamais éditer ces `.swift` via PowerShell `Get-Content`/`WriteAllText`
+    (mangling UTF-8 des accents `é`→`Ã©`) ; ré-appliqué proprement via l'outil d'édition qui
+    préserve l'encodage.
 
 - **2026-08-29 — ox-alpha (opencode)** : **Correction du tirage aléatoire du modèle d'iPhone +
   bouton Enregistrer du studio + toast d'enregistrement photo** (demandes utilisateur :
