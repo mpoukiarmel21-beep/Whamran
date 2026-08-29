@@ -14,26 +14,31 @@
 - Repo public `mpoukiarmel21-beep/Whamran` (branch `main`). CI : `.github/workflows/build-ipa.yml`
   (macOS runner, `xcodegen` + `xcodebuild` ad-hoc → IPA → upload artifact ; publication Release
   uniquement sur push de tag).
-- Dernier build réussi : run `33223634438` (commit `d6f219d`, « Video studio: hide Device section… »).
-  **Ajustements studio vidéo + correction écran noir livrés** (voir Journal). Nouvel IPA
-  (827 794 o) téléchargé, vérifié (binaire + `.strings` FR/EN) puis **ré-uploadé** dans la Release
-  `v1.0.0` — **lien direct stable** :
-  `https://github.com/mpoukiarmel21-beep/Whamran/releases/download/v1.0.0/Whamran.ipa`
+- Dernier build réussi : run `33224387723` (commits `32f3799` + `6a278c6`, « Random iPhone
+  model per capture… »). Livré : **modèle d'iPhone choisi au hasard par capture**, bouton
+  Enregistrer-tout déplacé **en bas à droite** (icône ↓ sur le badge compteur), **bouton retour**
+  dans la section Photos (voir Journal). Nouvel IPA (835 336 o) téléchargé, vérifié (binaire +
+  `.strings` FR/EN avec `opt_back`) puis **ré-uploadé** dans la Release `v1.0.0` — **lien direct
+  stable** : `https://github.com/mpoukiarmel21-beep/Whamran/releases/download/v1.0.0/Whamran.ipa`
 
 ## En cours
 
-- **(libre)** — **Ajustements studio vidéo livrés et build vert** :
-  1. Section « Appareil » cachée dans les options photo ET les réglages du studio vidéo.
-  2. Écran noir + freeze corrigé (aperçu plein écran retiré).
-  3. Enregistrer tout : badge « ↓ + nombre » en haut à droite → sauvegarde toutes les captures.
-  4. Suppression par miniature : ❌ en coin de chaque miniature.
-  - Build vert `33223634438`, IPA 827 794 o uploadé dans la Release `v1.0.0`.
+- **(libre)** — **Modèle d'iPhone aléatoire + boutons du studio remaniés, build vert** :
+  1. Modèle d'iPhone au **hasard par capture** (`randomModelPool: compatible.map(\.name)`) dans
+     les options photo (`ImageMetadataEngine.generate`) ET le studio vidéo (`generateFrame`) → plus
+     de « iPhone 11 » systématique.
+  2. Enregistrer-tout déplacé **en bas à droite** : retiré du `topBar`, désormais sur le badge
+     compteur (icône photo + ↓ + nombre) en bas à droite.
+  3. **Bouton retour** en haut de la section Photos → retour à l'accueil (`newSession`).
+  - Build vert `33224387723`, IPA 835 336 o uploadé dans la Release `v1.0.0`.
 
 ## Prochaine étape
 
 - **Rien en attente côté build.** Pour une future itération : pousser `main`, surveiller la CI
-  (`gh run list --workflow build-ipa.yml`), corriger les erreurs de compile le cas échéant,
-  télécharger l'artefact `Whamran-ipa`, vérifier le binaire + les `.strings` FR/EN, puis
+  (`gh run list --workflow build-ipa.yml`), corriger les erreurs de compile le cas échéant
+  (attention : le paramètre `randomModelPool` étant **après** `progress` dans la signature, un
+  appel avec trailing closure échoue — passer `progress:` par label), télécharger l'artefact
+  `Whamran-ipa`, vérifier le binaire + les `.strings` FR/EN, puis
   `gh release upload v1.0.0 Whamran.ipa --clobber` et mettre à jour ce fichier (run ID + taille).
 
 ## Blocages / risques
@@ -44,6 +49,33 @@
 - `dist/` (IPA locales) est ignoré par `.gitignore`.
 
 ## Journal
+
+- **2026-08-29 — ox-alpha (opencode)** : **Modèle d'iPhone aléatoire + boutons du studio vidéo
+  remaniés** (demandes utilisateur) :
+  - **Modèle d'iPhone choisi au hasard par capture** : `ImageMetadataEngine.generate(...)` et
+    `generateFrame(...)` acceptent un nouvel argument `randomModelPool: [String]? = nil`. Dans la
+    boucle de génération, un `effectiveModel` est tiré au hasard dans la piscine à chaque capture
+    (`pool.randomElement()`), et c'est lui qui pilote la caméra virtuelle, le nom de fichier
+    (`whamran_<modèle>_<ios>_N.heic`), l'EXIF et le `GeneratedImage.model`. Les plages iOS
+    min/max sont maintenant calculées **par image**. Les appels passent `randomModelPool:
+    compatible.map(\.name)` (options photo et studio vidéo `captureLive`/`extractAuto`) → les
+    photos ne sortent plus toutes en « iPhone 11 ».
+  - **Bouton Enregistrer-tout déplacé en bas à droite** : le badge « ↓ + nombre » est retiré du
+    `topBar` (qui redevient simple retour + temps) ; le **badge compteur** en bas à droite devient
+    un bouton **Enregistrer-tout** (icône photo + icône ↓ `arrow.down.circle.fill` + nombre) qui
+    fait `saveAll()` → `PhotoSaver.save(urls: captured.map(\.url))` + toast `vst_saved`
+    (`savedToastOverlay`). Désactivé quand aucune capture. La suppression par miniature ❌ reste
+    inchangée.
+  - **Bouton retour dans la section Photos** : en haut de `optionsView`, un petit bouton
+    « chevron gauche + Retour » (`opt_back` FR « Retour » / EN « Back », nouvelle clé ajoutée aux
+    deux `.strings`) appelle `newSession()` → retour à l'accueil (si l'utilisateur change d'avis,
+    par ex. veut choisir une vidéo).
+  - **Piège de compile corrigé** : `randomModelPool` étant déclaré **après** `progress` dans la
+    signature, l'appel original en trailing closure (`) { p in ... }`) faisait échouer le build
+    (exit 65, « incorrect argument labels ») ; corrigé en passant `progress:` par label. Premier
+    run `33224314113` échoué, run `33224387723` **vert** (1m06).
+  - IPA 835 336 o vérifié (binaire + `opt_back` « Retour »/« Back » dans les `.strings` FR/EN
+    compilés) et **ré-uploadé** dans la Release `v1.0.0`.
 
 - **2026-08-29 — ox-alpha (opencode)** : **Ajustements studio vidéo + correction écran noir**
   (demandes utilisateur) :
