@@ -571,10 +571,11 @@ struct ContentView: View {
                             source: source, count: count, model: selectedModel,
                             iosVersion: iosChoice, city: selectedCity,
                             outputDir: sourceDir,
-                            randomModelPool: compatible.map(\.name)) { p in
+                            progress: { p in
                                 let fraction = (Double(completed) + Double(count) * p) / Double(totalOutputs)
                                 Task { @MainActor in progress = fraction }
-                            }
+                            },
+                            randomModelPool: compatible.map(\.name))
                         completed += count
                         all.append(contentsOf: res)
                     }
