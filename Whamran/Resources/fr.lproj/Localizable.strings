@@ -23,6 +23,7 @@
 "opt_count_videos_hint" = "Chaque vidéo aura une adresse et une date différentes";
 "opt_generate" = "Générer";
 "opt_cancel" = "Annuler";
+"opt_back" = "Retour";
 "proc_title" = "Génération en cours…";
 "result_title" = "Fichiers générés";
 "result_save" = "Enregistrer dans Photos";

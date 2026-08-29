@@ -34,18 +34,23 @@ public final class ImageMetadataEngine {
                                  city: WorldCity?,
                                  outputDir: URL,
                                  progress: ((Double) -> Void)? = nil,
-                                 maxDimension: CGFloat? = nil) throws -> [GeneratedImage] {
+                                 maxDimension: CGFloat? = nil,
+                                 randomModelPool: [String]? = nil) throws -> [GeneratedImage] {
         guard let src = CGImageSourceCreateWithData(source as CFData, nil) else {
             throw EngineError.invalidSource
         }
-        let minIOS = DeviceDatabase.all.first(where: { $0.name == model })?.minIOS ?? IOSVersionTimeline.minMajor
-        let maxIOS = DeviceDatabase.all.first(where: { $0.name == model })?.maxIOS ?? IOSVersionTimeline.maxMajor
+        let pool = (randomModelPool?.isEmpty == false) ? randomModelPool! : [model]
 
         var used = Set<String>()
         var results: [GeneratedImage] = []
         let fileExt = "heic"
 
         for i in 0..<count {
+            // Un modèle différent à chaque capture (au hasard parmi les compatibles).
+            let effectiveModel = pool.randomElement() ?? model
+            let minIOS = DeviceDatabase.all.first(where: { $0.name == effectiveModel })?.minIOS ?? IOSVersionTimeline.minMajor
+            let maxIOS = DeviceDatabase.all.first(where: { $0.name == effectiveModel })?.maxIOS ?? IOSVersionTimeline.maxMajor
+
             // 1. iOS + date cohérents
             let (ios, date): (String, Date)
             if iosVersion.lowercased() == "auto" {
@@ -63,7 +68,7 @@ public final class ImageMetadataEngine {
             let serial = SerialGenerator.serial()
 
             // 3. Caméra virtuelle: réglages EXIF réalistes propres au modèle simulé.
-            let camera = VirtualCamera(model: model, ios: ios)
+            let camera = VirtualCamera(model: effectiveModel, ios: ios)
 
             // 4. "Capture" réelle: recadrage très léger + filtre quasi imperceptible + ré-encodage HEIC.
             guard let cg = CGImageSourceCreateImageAtIndex(src, 0, nil) else { throw EngineError.invalidSource }
@@ -72,11 +77,11 @@ public final class ImageMetadataEngine {
             let ci = applySubtleChanges(to: base, seed: i)
             let outData = try renderToHEIC(ci: ci, camera: camera, date: date, addr: addr, serial: serial)
 
-            let fileName = "whamran_\(sanitize(model))_\(ios)_\(i+1).\(fileExt)"
+            let fileName = "whamran_\(sanitize(effectiveModel))_\(ios)_\(i+1).\(fileExt)"
             let url = outputDir.appendingPathComponent(fileName)
             try outData.write(to: url)
 
-            results.append(GeneratedImage(url: url, model: model, iosVersion: ios, serial: serial,
+            results.append(GeneratedImage(url: url, model: effectiveModel, iosVersion: ios, serial: serial,
                                           captureDate: date, address: addr.full, city: addr.cityName,
                                           country: addr.countryName, coordinate: (addr.lat, addr.lon)))
             progress?(Double(i + 1) / Double(count))
@@ -94,9 +99,12 @@ public final class ImageMetadataEngine {
                                      city: WorldCity?,
                                      outputDir: URL,
                                      used: inout Set<String>,
-                                     maxDimension: CGFloat? = nil) throws -> GeneratedImage {
-        let minIOS = DeviceDatabase.all.first(where: { $0.name == model })?.minIOS ?? IOSVersionTimeline.minMajor
-        let maxIOS = DeviceDatabase.all.first(where: { $0.name == model })?.maxIOS ?? IOSVersionTimeline.maxMajor
+                                     maxDimension: CGFloat? = nil,
+                                     randomModelPool: [String]? = nil) throws -> GeneratedImage {
+        let pool = (randomModelPool?.isEmpty == false) ? randomModelPool! : [model]
+        let effectiveModel = pool.randomElement() ?? model
+        let minIOS = DeviceDatabase.all.first(where: { $0.name == effectiveModel })?.minIOS ?? IOSVersionTimeline.minMajor
+        let maxIOS = DeviceDatabase.all.first(where: { $0.name == effectiveModel })?.maxIOS ?? IOSVersionTimeline.maxMajor
 
         let (ios, date): (String, Date)
         if iosVersion.lowercased() == "auto" {
@@ -110,18 +118,18 @@ public final class ImageMetadataEngine {
         let worldCity = city ?? LocationProvider.shared.randomWorldCity()
         let addr = LocationProvider.shared.address(forWorld: worldCity, used: &used)
         let serial = SerialGenerator.serial()
-        let camera = VirtualCamera(model: model, ios: ios)
+        let camera = VirtualCamera(model: effectiveModel, ios: ios)
 
         var base = CIImage(cgImage: cg)
         if let maxDimension = maxDimension { base = resize(base, maxDimension: maxDimension) }
         let ci = applySubtleChanges(to: base, seed: index)
         let outData = try renderToHEIC(ci: ci, camera: camera, date: date, addr: addr, serial: serial)
 
-        let fileName = "whamran_\(sanitize(model))_\(ios)_\(index+1).heic"
+        let fileName = "whamran_\(sanitize(effectiveModel))_\(ios)_\(index+1).heic"
         let url = outputDir.appendingPathComponent(fileName)
         try outData.write(to: url)
 
-        return GeneratedImage(url: url, model: model, iosVersion: ios, serial: serial,
+        return GeneratedImage(url: url, model: effectiveModel, iosVersion: ios, serial: serial,
                               captureDate: date, address: addr.full, city: addr.cityName,
                               country: addr.countryName, coordinate: (addr.lat, addr.lon))
     }

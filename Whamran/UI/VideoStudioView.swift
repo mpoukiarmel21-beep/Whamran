@@ -114,35 +114,12 @@ struct VideoStudioView: View {
                 .contentShape(Capsule())
             }
             Spacer()
-            HStack(spacing: 8) {
-                Text(formatTime(currentTime))
-                    .font(.system(.caption, design: .rounded, weight: .bold).monospacedDigit())
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .background(.ultraThinMaterial, in: Capsule())
-
-                // Compteur des captures + enregistrer tout
-                if !captured.isEmpty {
-                    Button {
-                        saveAll()
-                    } label: {
-                        HStack(spacing: 5) {
-                            Image(systemName: "arrow.down.circle.fill")
-                                .font(.system(size: 13, weight: .semibold))
-                            Text("\(captured.count)")
-                                .font(.system(.subheadline, design: .rounded, weight: .bold).monospacedDigit())
-                        }
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(.ultraThinMaterial, in: Capsule())
-                        .overlay(Capsule().stroke(Color.white.opacity(0.28), lineWidth: 1))
-                    }
-                    .buttonStyle(.plain)
-                    .contentShape(Capsule())
-                }
-            }
+            Text(formatTime(currentTime))
+                .font(.system(.caption, design: .rounded, weight: .bold).monospacedDigit())
+                .foregroundStyle(.white)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(.ultraThinMaterial, in: Capsule())
         }
         .padding(.horizontal, 16)
         .padding(.top, 54)
@@ -234,16 +211,27 @@ struct VideoStudioView: View {
         .disabled(isWorking)
     }
 
+    /// Compteur des captures + enregistrer tout (bas à droite, icône de téléchargement).
     private var counterBadge: some View {
-        HStack(spacing: 4) {
-            Image(systemName: "photo.on.rectangle.angled")
-            Text("\(captured.count)")
+        Button {
+            saveAll()
+        } label: {
+            HStack(spacing: 5) {
+                Image(systemName: "photo.on.rectangle.angled")
+                Image(systemName: "arrow.down.circle.fill")
+                    .font(.system(size: 13, weight: .semibold))
+                Text("\(captured.count)")
+            }
+            .font(.system(.subheadline, design: .rounded, weight: .bold).monospacedDigit())
+            .foregroundStyle(.white)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(.ultraThinMaterial, in: Capsule())
+            .overlay(Capsule().stroke(Color.white.opacity(0.28), lineWidth: 1))
         }
-        .font(.system(.subheadline, design: .rounded, weight: .bold))
-        .foregroundStyle(.white)
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-        .background(.ultraThinMaterial, in: Capsule())
+        .buttonStyle(.plain)
+        .contentShape(Capsule())
+        .disabled(captured.isEmpty)
     }
 
     // MARK: - Feuille de paramètres
@@ -497,7 +485,8 @@ struct VideoStudioView: View {
                 let gen = try box.capture { used in
                     try ImageMetadataEngine.generateFrame(cg: img, index: baseIndex, model: model,
                                                           iosVersion: ios, city: city, outputDir: dir, used: &used,
-                                                          maxDimension: 1400)
+                                                          maxDimension: 1400,
+                                                          randomModelPool: compatible.map(\.name))
                 }
                 await MainActor.run {
                     captured.append(gen)
@@ -535,7 +524,8 @@ struct VideoStudioView: View {
                     let gen = try box.capture { used in
                         try ImageMetadataEngine.generateFrame(cg: img, index: baseIndex + i, model: model,
                                                               iosVersion: ios, city: city, outputDir: dir, used: &used,
-                                                              maxDimension: 1400)
+                                                              maxDimension: 1400,
+                                                              randomModelPool: compatible.map(\.name))
                     }
                     gens.append(gen)
                 }

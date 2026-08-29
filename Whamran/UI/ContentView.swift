@@ -175,6 +175,28 @@ struct ContentView: View {
             appBackground
             ScrollView {
                 VStack(spacing: 16) {
+                    // Bouton retour vers l'accueil (pour changer d'avis / choisir une vidéo)
+                    HStack {
+                        Button {
+                            newSession()
+                        } label: {
+                            HStack(spacing: 6) {
+                                Image(systemName: "chevron.left")
+                                    .font(.system(size: 15, weight: .semibold))
+                                Text(L("opt_back"))
+                                    .font(.system(.subheadline, design: .rounded, weight: .bold))
+                            }
+                            .foregroundStyle(darkText)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 10)
+                            .background(Color.white, in: Capsule())
+                            .overlay(Capsule().stroke(Color.black.opacity(0.08), lineWidth: 1))
+                        }
+                        .buttonStyle(.plain)
+                        Spacer()
+                    }
+                    .padding(.top, 4)
+
                     previewHeader
 
                     // Fake localisation : recherche de villes
@@ -548,7 +570,8 @@ struct ContentView: View {
                         let res = try ImageMetadataEngine.generate(
                             source: source, count: count, model: selectedModel,
                             iosVersion: iosChoice, city: selectedCity,
-                            outputDir: sourceDir) { p in
+                            outputDir: sourceDir,
+                            randomModelPool: compatible.map(\.name)) { p in
                                 let fraction = (Double(completed) + Double(count) * p) / Double(totalOutputs)
                                 Task { @MainActor in progress = fraction }
                             }
