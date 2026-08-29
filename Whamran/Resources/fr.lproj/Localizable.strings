@@ -4,7 +4,7 @@
 "import_video" = "Choisir une vidéo";
 "options_title" = "Options de génération";
 "opt_chip" = "Puce détectée";
-"opt_camera_title" = "Caméra virtuelle";
+"opt_camera_title" = "Appareil";
 "opt_model" = "Modèle d'iPhone simulé";
 "opt_location_title" = "Fake localisation (monde entier)";
 "opt_search_hint" = "Rechercher une ville… (ex : Paris)";
@@ -41,3 +41,7 @@
 "vst_auto_count" = "Photos par vidéo";
 "vst_auto_hint" = "L'app extrait N photos distinctes réparties sur toute la vidéo. Chacune est une vraie capture de caméra.";
 "vst_auto_extract" = "Extraire %d photos";
+"vst_delete" = "Effacer";
+"vst_delete_confirm" = "Effacer cette photo ?";
+"vst_saved" = "Enregistrée dans Photos";
+"vst_save_error" = "Impossible d'enregistrer";

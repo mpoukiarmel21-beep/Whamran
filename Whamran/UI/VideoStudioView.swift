@@ -31,6 +31,12 @@ struct VideoStudioView: View {
     @State private var errorMsg: String?
     @State private var showError = false
 
+    // Aperçu d'une capture prise
+    @State private var showViewer = false
+    @State private var viewingIndex: Int?
+    @State private var confirmDelete = false
+    @State private var savedToast = false
+
     private let captureBox = CaptureBox()
 
     init(sourceURL: URL, compatible: [DeviceModel],
@@ -82,6 +88,9 @@ struct VideoStudioView: View {
         .sheet(isPresented: $showSettings) {
             settingsSheet
         }
+        .fullScreenCover(isPresented: $showViewer) {
+            captureViewer
+        }
         .onAppear {
             let asset = AVURLAsset(url: sourceURL)
             duration = asset.duration.seconds
@@ -94,13 +103,20 @@ struct VideoStudioView: View {
 
     // MARK: - Barre du haut
     private var topBar: some View {
-        HStack {
+        HStack(spacing: 12) {
             Button { onCancel() } label: {
-                Label(L("opt_cancel"), systemImage: "xmark")
-                    .font(.system(.subheadline, design: .rounded, weight: .semibold))
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 9)
-                    .background(.ultraThinMaterial, in: Capsule())
+                HStack(spacing: 6) {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 17, weight: .semibold))
+                    Text(L("opt_cancel"))
+                        .font(.system(.subheadline, design: .rounded, weight: .bold))
+                }
+                .foregroundStyle(.white)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 15)
+                .background(.ultraThinMaterial, in: Capsule())
+                .overlay(Capsule().stroke(Color.white.opacity(0.28), lineWidth: 1))
+                .contentShape(Capsule())
             }
             Spacer()
             Text(formatTime(currentTime))
@@ -111,7 +127,7 @@ struct VideoStudioView: View {
                 .background(.ultraThinMaterial, in: Capsule())
         }
         .padding(.horizontal, 16)
-        .padding(.top, 8)
+        .padding(.top, 54)
     }
 
     // MARK: - Miniatures des captures
@@ -120,21 +136,27 @@ struct VideoStudioView: View {
             HStack(spacing: 10) {
                 ForEach(Array(captured.enumerated()), id: \.offset) { idx, img in
                     if let ui = UIImage(contentsOfFile: img.url.path) {
-                        Image(uiImage: ui)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 64, height: 64)
-                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10).stroke(Color.white.opacity(0.9), lineWidth: 2)
-                            )
-                            .overlay(alignment: .bottomTrailing) {
-                                Text("\(idx + 1)").font(.system(.caption2, weight: .bold))
-                                    .foregroundStyle(.white)
-                                    .padding(4)
-                                    .background(Color.black.opacity(0.6), in: Circle())
-                                    .padding(4)
-                            }
+                        Button {
+                            viewingIndex = idx
+                            showViewer = true
+                        } label: {
+                            Image(uiImage: ui)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 64, height: 64)
+                                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 10).stroke(Color.white.opacity(0.9), lineWidth: 2)
+                                )
+                                .overlay(alignment: .bottomTrailing) {
+                                    Text("\(idx + 1)").font(.system(.caption2, weight: .bold))
+                                        .foregroundStyle(.white)
+                                        .padding(4)
+                                        .background(Color.black.opacity(0.6), in: Circle())
+                                        .padding(4)
+                                }
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
             }
@@ -282,19 +304,19 @@ struct VideoStudioView: View {
                     .padding(16)
                     .background(rowCard)
 
-                    // Version iOS
+                    // Version iOS (chips horizontales, même DA)
                     VStack(alignment: .leading, spacing: 10) {
                         Label(L("opt_ios"), systemImage: "apple.logo")
                             .font(.system(.subheadline, design: .rounded, weight: .bold))
-                        Picker(selection: $iosChoice) {
-                            Text(L("opt_ios_auto")).tag("auto")
-                            ForEach(allowedVersions, id: \.self) { v in
-                                Text(IOSVersionTimeline.subtitle(v)).tag(v)
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                versionChip(label: L("opt_ios_auto"), tag: "auto")
+                                ForEach(allowedVersions, id: \.self) { v in
+                                    versionChip(label: IOSVersionTimeline.subtitle(v), tag: v)
+                                }
                             }
-                        } label: {
-                            Text(L("opt_ios"))
+                            .padding(.vertical, 2)
                         }
-                        .pickerStyle(.menu)
                     }
                     .padding(16)
                     .background(rowCard)
@@ -360,10 +382,127 @@ struct VideoStudioView: View {
         .buttonStyle(.plain)
     }
 
+    /// Puce sélectionnable pour le choix de version iOS (même DA que le reste).
+    private func versionChip(label: String, tag: String) -> some View {
+        let isSelected = iosChoice == tag
+        return Button {
+            iosChoice = tag
+        } label: {
+            Text(label)
+                .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                .lineLimit(1)
+                .foregroundStyle(isSelected ? AnyShapeStyle(Color.white)
+                                            : AnyShapeStyle(Color(red: 0.10, green: 0.11, blue: 0.16)))
+                .padding(.horizontal, 15)
+                .padding(.vertical, 9)
+                .background(isSelected ? AnyShapeStyle(accentGradient) : AnyShapeStyle(Color.black.opacity(0.05)),
+                            in: Capsule())
+                .overlay(Capsule().stroke(isSelected ? Color.clear : Color.black.opacity(0.08), lineWidth: 1))
+        }
+        .buttonStyle(.plain)
+    }
+
     private var accentGradient: LinearGradient {
         LinearGradient(colors: [Color(red: 0.29, green: 0.33, blue: 0.95),
                                 Color(red: 0.17, green: 0.72, blue: 0.87)],
                        startPoint: .topLeading, endPoint: .bottomTrailing)
+    }
+
+    // MARK: - Aperçu plein écran d'une capture (voir / enregistrer / effacer)
+    private var captureViewer: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            if let index = viewingIndex, captured.indices.contains(index) {
+                let img = captured[index]
+                VStack(spacing: 0) {
+                    HStack {
+                        Button { showViewer = false } label: {
+                            Image(systemName: "xmark")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundStyle(.white)
+                                .padding(12)
+                                .background(.ultraThinMaterial, in: Circle())
+                        }
+                        .padding(.leading, 16)
+                        Spacer()
+                        Text("\(index + 1) / \(captured.count)")
+                            .font(.system(.subheadline, design: .rounded, weight: .bold))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(.ultraThinMaterial, in: Capsule())
+                        Spacer()
+                        Button { confirmDelete = true } label: {
+                            Image(systemName: "trash")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundStyle(Color.red.opacity(0.9))
+                                .padding(12)
+                                .background(.ultraThinMaterial, in: Circle())
+                        }
+                        .padding(.trailing, 16)
+                    }
+                    .padding(.top, 10)
+
+                    Spacer()
+
+                    if let ui = UIImage(contentsOfFile: img.url.path) {
+                        Image(uiImage: ui)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .padding(.horizontal, 20)
+                    }
+
+                    Spacer()
+
+                    Button {
+                        PhotoSaver.save(urls: [img.url])
+                        withAnimation { savedToast = true }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) {
+                            withAnimation { savedToast = false }
+                        }
+                    } label: {
+                        Label(L("result_save"), systemImage: "arrow.down.circle.fill")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(WhamranButtonStyle(kind: .primary))
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 26)
+                }
+                .overlay(alignment: .bottom) {
+                    if savedToast {
+                        Text(L("vst_saved"))
+                            .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 18)
+                            .padding(.vertical, 12)
+                            .background(Color.black.opacity(0.75), in: Capsule())
+                            .padding(.bottom, 96)
+                            .transition(.move(edge: .bottom).combined(with: .opacity))
+                    }
+                }
+            }
+        }
+        .alert(L("vst_delete_confirm"), isPresented: $confirmDelete) {
+            Button(L("vst_delete"), role: .destructive) { deleteViewing() }
+            Button(L("opt_cancel"), role: .cancel) { }
+        }
+    }
+
+    // MARK: - Suppression d'une capture du studio
+    private func deleteViewing() {
+        guard let index = viewingIndex, captured.indices.contains(index) else { return }
+        let target = captured[index]
+        try? FileManager.default.removeItem(at: target.url)
+        captured.remove(at: index)
+        if captured.isEmpty {
+            viewingIndex = nil
+            showViewer = false
+        } else if index >= captured.count {
+            viewingIndex = captured.count - 1
+        } else {
+            viewingIndex = index
+        }
     }
 
     private var busyOverlay: some View {
