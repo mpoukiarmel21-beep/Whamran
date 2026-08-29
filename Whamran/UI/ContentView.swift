@@ -585,6 +585,9 @@ struct ContentView: View {
             .appendingPathComponent("whamran_\(UUID().uuidString)")
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
 
+        // Capturer la ville une seule fois AVANT le Task pour garantir la cohérence.
+        let cityForGeneration = selectedCity
+
         Task {
             do {
                 switch input {
@@ -597,7 +600,7 @@ struct ContentView: View {
                         try? FileManager.default.createDirectory(at: sourceDir, withIntermediateDirectories: true)
                         let res = try ImageMetadataEngine.generate(
                             source: source, count: count, model: selectedModel,
-                            iosVersion: iosChoice, city: selectedCity,
+                            iosVersion: iosChoice, city: cityForGeneration,
                             outputDir: sourceDir,
                             progress: { p in
                                 let fraction = (Double(completed) + Double(count) * p) / Double(totalOutputs)
@@ -611,7 +614,7 @@ struct ContentView: View {
                 case .video(let url):
                     let res = try await VideoEngine.generate(
                         sourceURL: url, count: count, model: selectedModel,
-                        iosVersion: iosChoice, city: selectedCity,
+                        iosVersion: iosChoice, city: cityForGeneration,
                         outputDir: dir) { p in Task { @MainActor in progress = p } }
                     await MainActor.run { videos = res; images = []; screen = .result }
                 case nil:

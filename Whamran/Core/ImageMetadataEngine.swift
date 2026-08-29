@@ -45,6 +45,10 @@ public final class ImageMetadataEngine {
         var results: [GeneratedImage] = []
         let fileExt = "heic"
 
+        // Fixer la ville UNE SEULE fois : si sélectionnée, on la garde ;
+        // sinon on tire une ville aléatoire et on la réutilise pour toutes les sources.
+        let worldCity = city ?? LocationProvider.shared.randomWorldCity()
+
         for i in 0..<count {
             // Un modèle différent à chaque capture (au hasard parmi les compatibles).
             let effectiveModel = pool.randomElement() ?? model
@@ -62,8 +66,6 @@ public final class ImageMetadataEngine {
             }
 
             // 2. Localisation: la ville sélectionnée agit réellement sur la photo.
-            //    Si aucune ville choisie -> emplacement aléatoire dans le monde entier.
-            let worldCity = city ?? LocationProvider.shared.randomWorldCity()
             let addr = LocationProvider.shared.address(forWorld: worldCity, used: &used)
             let serial = SerialGenerator.serial()
 

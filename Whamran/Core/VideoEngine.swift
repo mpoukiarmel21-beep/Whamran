@@ -30,6 +30,9 @@ public final class VideoEngine {
         var used = Set<String>()
         var results: [GeneratedVideo] = []
 
+        // Fixer la ville UNE SEULE fois avant la boucle.
+        let worldCity = city ?? LocationProvider.shared.randomWorldCity()
+
         for i in 0..<count {
             let (ios, date): (String, Date)
             if iosVersion.lowercased() == "auto" {
@@ -40,7 +43,6 @@ public final class VideoEngine {
                 date = IOSVersionTimeline.randomCaptureDate(forIOS: ios, minIOS: minIOS, maxIOS: maxIOS)
             }
 
-            let worldCity = city ?? LocationProvider.shared.randomWorldCity()
             let addr = LocationProvider.shared.address(forWorld: worldCity, used: &used)
             let serial = SerialGenerator.serial()
             let camera = VirtualCamera(model: model, ios: ios)
